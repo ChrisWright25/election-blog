@@ -1,20 +1,19 @@
 ---
 title: 'Week 1: Electoral Competitiveness'
-author: "Package Build"
-date: "2024-09-08"
-output: pdf_document
+author: Package Build
+date: '2024-09-09'
+slug: week-1-electoral-competitiveness
 categories: []
 tags: []
-slug: "week-1-electoral-competitiveness"
 ---
-# Load libraries.
-## install via `install.packages("name")`
+
+```{r}
 library(ggplot2)
 library(maps)
 library(tidyverse)
 
 ## set working directory here
-setwd("~/Gov1347/election-blog")
+# setwd("~")
 
 ####----------------------------------------------------------#
 #### Read and clean presidential popular vote.
@@ -70,3 +69,50 @@ d_popvote |>
   geom_line() + 
   scale_color_manual(values = c("dodgerblue4", "firebrick1")) + 
   my_custom_theme
+
+####----------------------------------------------------------#
+#### State-by-state map of presidential popular votes.
+####----------------------------------------------------------#
+
+# Sequester shapefile of states from `maps` library.
+states_map <- map_data("state")
+
+# Read wide version of dataset that can be used to compare candidate votes with one another. 
+d_pvstate_wide <- read_csv("clean_wide_state_2pv_1948_2020.csv")
+
+# Merge d_pvstate_wide with state_map.
+d_pvstate_wide$region <- tolower(d_pvstate_wide$state)
+
+pv_map <- d_pvstate_wide |>
+  filter(year == 2020) |>
+  left_join(states_map, by = "region")
+
+# Make map grid of state winners for each election year available in the dataset. 
+pv_win_map <- pv_map |> 
+  mutate(winner = ifelse(R_pv2p > D_pv2p, "republican", "democrat"))
+  
+pv_win_map |> 
+  ggplot(aes(long, lat, group = group)) + 
+  geom_polygon(aes(fill = winner)) + 
+  scale_fill_manual(values = c("dodgerblue4", "firebrick1")) + 
+  theme_void()
+  
+```
+
+
+
+```{r}
+d_pvstate_wide |> 
+  filter(year >= 1980) |> 
+  left_join(states_map, by = "region") |> 
+  mutate(winner = ifelse(R_pv2p > D_pv2p, "republican", "democrat")) |> 
+  ggplot(aes(long, lat, group = group)) +
+  facet_wrap(facets = year ~.) + 
+  geom_polygon(aes(fill = winner), color = "white") + 
+  scale_fill_manual(values = c("dodgerblue4", "firebrick1")) + 
+  theme_void() + 
+  ggtitle("Presidential Vote Share (1980-2020)") + 
+  theme(strip.text = element_text(size = 12), 
+        aspect.ratio = 1)
+```
+
