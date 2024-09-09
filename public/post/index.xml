@@ -6,8 +6,15 @@
     <description>Recent content in Posts on A minimal Hugo website</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 01 Dec 2020 21:13:14 -0500</lastBuildDate>
+    <lastBuildDate>Sun, 08 Sep 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://example.org/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Week 1: Electoral Competitiveness</title>
+      <link>https://example.org/post/2024/09/08/week-1-electoral-competitiveness/</link>
+      <pubDate>Sun, 08 Sep 2024 00:00:00 +0000</pubDate>
+      <guid>https://example.org/post/2024/09/08/week-1-electoral-competitiveness/</guid>
+      <description>&lt;h1 id=&#34;load-libraries&#34;&gt;Load libraries.&lt;/h1&gt;&#xA;&lt;h2 id=&#34;install-via-installpackagesname&#34;&gt;install via &lt;code&gt;install.packages(&amp;quot;name&amp;quot;)&lt;/code&gt;&lt;/h2&gt;&#xA;&lt;p&gt;library(ggplot2)&#xA;library(maps)&#xA;library(tidyverse)&lt;/p&gt;&#xA;&lt;h2 id=&#34;set-working-directory-here&#34;&gt;set working directory here&lt;/h2&gt;&#xA;&lt;p&gt;setwd(&amp;quot;~/Gov1347/election-blog&amp;quot;)&lt;/p&gt;&#xA;&lt;p&gt;####&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;-#&lt;/p&gt;&#xA;&lt;h4 id=&#34;read-and-clean-presidential-popular-vote&#34;&gt;Read and clean presidential popular vote.&lt;/h4&gt;&#xA;&lt;p&gt;####&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;-#&lt;/p&gt;&#xA;&lt;h1 id=&#34;read-presidential-popular-vote&#34;&gt;Read presidential popular vote.&lt;/h1&gt;&#xA;&lt;p&gt;d_popvote &amp;lt;- read_csv(&amp;ldquo;popvote_1948-2020.csv&amp;rdquo;)&lt;/p&gt;&#xA;&lt;h1 id=&#34;subset-data-to-most-recent-past-election-year&#34;&gt;Subset data to most recent past election year.&lt;/h1&gt;&#xA;&lt;p&gt;d_popvote |&amp;gt;&#xA;filter(year == 2020) |&amp;gt;&#xA;select(party, candidate, pv2p)&lt;/p&gt;&#xA;&lt;h1 id=&#34;pivot-data-to-wide-format-with-party-names-as-columns-and-two-party-vote-share-as-values&#34;&gt;Pivot data to wide format with party names as columns and two-party vote share as values.&lt;/h1&gt;&#xA;&lt;p&gt;(d_popvote_wide &amp;lt;- d_popvote |&amp;gt;&#xA;select(year, party, pv2p) |&amp;gt;&#xA;pivot_wider(names_from = party, values_from = pv2p))&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Hello R Markdown</title>
       <link>https://example.org/post/2020/12/01/hello-r-markdown/</link>

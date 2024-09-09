@@ -50,11 +50,13 @@ pv_win_map <- pv_map |>
   
 pv_win_map |> 
   ggplot(aes(long, lat, group = group)) + 
-  geom_polygon(aes(fill = winner)) + 
-  geom_sf_label(aes(state.abb))
+  geom_polygon(aes(fill = winner)) +
   scale_fill_manual(values = c("dodgerblue4", "firebrick1")) + 
   my_custom_theme + theme(axis.line = element_blank()) + theme(panel.grid = element_blank()) + theme(axis.text = element_blank()) + theme(axis.title = element_blank()) + theme(axis.text.x = element_blank())
 
+```
+
+```{r}
 d_pvstate_wide |> 
   filter(year >= 1980) |> 
   left_join(states_map, by = "region") |> 
