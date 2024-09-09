@@ -1,18 +1,13 @@
 ---
 title: 'Week 1: Electoral Competitiveness'
-author: Chris Wright
-date: '2024-09-09'
-slug: week-1-electoral-competitiveness
+author: "Chris Wright"
+date: "2024-09-09"
+output: pdf_document
 categories: []
 tags: []
+slug: "week-1-electoral-competitiveness"
 ---
 
-
-``` r
-library(ggplot2)
-library(maps)
-library(tidyverse)
-```
 
 ```
 ## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
@@ -25,21 +20,6 @@ library(tidyverse)
 ## ✖ dplyr::lag()    masks stats::lag()
 ## ✖ purrr::map()    masks maps::map()
 ## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
-```
-
-``` r
-## set working directory here
-# setwd("~")
-
-####----------------------------------------------------------#
-#### Read and clean presidential popular vote.
-####----------------------------------------------------------#
-
-# Read presidential popular vote. 
-d_popvote <- read_csv("popvote_1948-2020.csv")
-```
-
-```
 ## Rows: 38 Columns: 9
 ## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: ","
@@ -51,26 +31,12 @@ d_popvote <- read_csv("popvote_1948-2020.csv")
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 ```
 
-``` r
-# Subset data to most recent past election year. 
-d_popvote |> 
-  filter(year == 2020) |> 
-  select(party, candidate, pv2p)
-```
-
 ```
 ## # A tibble: 2 × 3
 ##   party      candidate         pv2p
 ##   <chr>      <chr>            <dbl>
 ## 1 democrat   Biden, Joseph R.  52.3
 ## 2 republican Trump, Donald J.  47.7
-```
-
-``` r
-# Pivot data to wide format with party names as columns and two-party vote share as values.
-(d_popvote_wide <- d_popvote |>
-    select(year, party, pv2p) |>
-    pivot_wider(names_from = party, values_from = pv2p))
 ```
 
 ```
@@ -98,13 +64,6 @@ d_popvote |>
 ## 19  2020     52.3       47.7
 ```
 
-``` r
-# Modify winner column to show "D" if Democrats win and "R" if Republicans win. 
-(d_popvote_wide <- d_popvote_wide |> 
-    mutate(winner = case_when(democrat > republican ~ "D",
-                              TRUE ~ "R")))
-```
-
 ```
 ## # A tibble: 19 × 4
 ##     year democrat republican winner
@@ -130,13 +89,6 @@ d_popvote |>
 ## 19  2020     52.3       47.7 D
 ```
 
-``` r
-# Summarize data with respect to winners. 
-d_popvote_wide |> 
-  group_by(winner) |>
-  summarise(races = n())
-```
-
 ```
 ## # A tibble: 2 × 2
 ##   winner races
@@ -145,54 +97,7 @@ d_popvote_wide |>
 ## 2 R          8
 ```
 
-``` r
-####----------------------------------------------------------#
-#### Visualize trends in national presidential popular vote. 
-####----------------------------------------------------------#
-
-# Visualize the two-party presidential popular over time. 
-d_popvote |> 
-  ggplot(aes(x = year, y = pv2p, color = party)) + 
-  geom_line() + 
-  scale_color_manual(values = c("dodgerblue4", "firebrick1")) + 
-  theme_bw()
-```
-
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-1-1.png" width="672" />
-
-``` r
-my_custom_theme <- 
-  theme_light() + 
-  theme(panel.border = element_blank(),
-        plot.title = element_text(size = 15, hjust = 0.5), 
-        axis.text.x = element_text(angle = 45, hjust = 1),
-        axis.text = element_text(size = 12),
-        strip.text = element_text(size = 18),
-        axis.line = element_line(colour = "black"),
-        legend.position = "top",
-        legend.text = element_text(size = 12),
-        text = element_text(family = "Georgia"))
-
-d_popvote |> 
-  ggplot(aes(x = year, y = pv2p, color = party)) + 
-  geom_line() + 
-  scale_color_manual(values = c("dodgerblue4", "firebrick1")) + 
-  my_custom_theme
-```
-
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-1-2.png" width="672" />
-
-``` r
-####----------------------------------------------------------#
-#### State-by-state map of presidential popular votes.
-####----------------------------------------------------------#
-
-# Sequester shapefile of states from `maps` library.
-states_map <- map_data("state")
-
-# Read wide version of dataset that can be used to compare candidate votes with one another. 
-d_pvstate_wide <- read_csv("clean_wide_state_2pv_1948_2020.csv")
-```
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-1-1.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-1-2.png" width="672" />
 
 ```
 ## Rows: 959 Columns: 14
@@ -205,41 +110,7 @@ d_pvstate_wide <- read_csv("clean_wide_state_2pv_1948_2020.csv")
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 ```
 
-``` r
-# Merge d_pvstate_wide with state_map.
-d_pvstate_wide$region <- tolower(d_pvstate_wide$state)
-
-pv_map <- d_pvstate_wide |>
-  filter(year == 2020) |>
-  left_join(states_map, by = "region")
-
-# Make map grid of state winners for each election year available in the dataset. 
-pv_win_map <- pv_map |> 
-  mutate(winner = ifelse(R_pv2p > D_pv2p, "republican", "democrat"))
-  
-pv_win_map |> 
-  ggplot(aes(long, lat, group = group)) + 
-  geom_polygon(aes(fill = winner)) + 
-  scale_fill_manual(values = c("dodgerblue4", "firebrick1")) + 
-  theme_void()
-```
-
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-1-3.png" width="672" />
-
-``` r
-d_pvstate_wide |> 
-  filter(year >= 1980) |> 
-  left_join(states_map, by = "region") |> 
-  mutate(winner = ifelse(R_pv2p > D_pv2p, "republican", "democrat")) |> 
-  ggplot(aes(long, lat, group = group)) +
-  facet_wrap(facets = year ~.) + 
-  geom_polygon(aes(fill = winner), color = "white") + 
-  scale_fill_manual(values = c("dodgerblue4", "firebrick1")) + 
-  theme_void() + 
-  ggtitle("Presidential Vote Share (1980-2020)") + 
-  theme(strip.text = element_text(size = 12), 
-        aspect.ratio = 1)
-```
 
 ```
 ## Warning in left_join(filter(d_pvstate_wide, year >= 1980), states_map, by = "region"): Detected an unexpected many-to-many relationship between `x` and `y`.
@@ -250,78 +121,6 @@ d_pvstate_wide |>
 ```
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-1-4.png" width="672" />
-
-``` r
-####----------------------------------------------------------#
-#### Forecast: simplified electoral cycle model. 
-####----------------------------------------------------------#
-
-# Create prediction (pv2p and margin) based on simplified electoral cycle model: 
-# vote_2024 = 3/4*vote_2020 + 1/4*vote_2016 (lag1, lag2, respectively). 
-pv2p_2024_states <- d_pvstate_wide |> 
-  filter(year == 2020) |> 
-  group_by(state) |> 
-  summarize(R_pv2p_2024 = 0.75*R_pv2p + 0.25*R_pv2p_lag1, 
-            D_pv2p_2024 = 0.75*D_pv2p + 0.25*D_pv2p_lag1) |> 
-  mutate(pv2p_2024_margin = R_pv2p_2024 - D_pv2p_2024, 
-         winner = ifelse(R_pv2p_2024 > D_pv2p_2024, "R", "D"), 
-         region = tolower(state))
-
-# Plot the margin of victory in a U.S. state map.
-pv2p_2024_states |> 
-  left_join(states_map, by = "region") |> 
-  ggplot(aes(long, lat, group = group)) + 
-  geom_polygon(aes(fill = pv2p_2024_margin), color = "black") + 
-  scale_fill_gradient2(high = "firebrick1", 
-                       low = "dodgerblue4", 
-                       mid = "white", 
-                       name = "win margin", 
-                       breaks = c(-50, -25, 0, 25, 50), 
-                       limits = c(-50, 50)) + 
-  theme_void()
-```
-
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-1-5.png" width="672" />
-
-``` r
-# Generate projected state winners and merge with electoral college votes to make 
-# summary of electoral college vote distributions. 
-ec <- read_csv("ec_full.csv")
-```
-
-```
-## Rows: 936 Columns: 3
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: ","
-## chr (1): state
-## dbl (2): electors, year
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-```
-
-``` r
-pv2p_2024_states <- pv2p_2024_states |> 
-  mutate(year = 2024) |> 
-  left_join(ec, by = c("state", "year"))
-
-pv2p_2024_states |> 
-  group_by(winner) |> 
-  summarize(electoral_votes = sum(electors))
-```
-
-```
-## # A tibble: 2 × 2
-##   winner electoral_votes
-##   <chr>            <dbl>
-## 1 D                  276
-## 2 R                  262
-```
-
-``` r
-## Harris: 
-## Trump: 
-```
 
 
 
