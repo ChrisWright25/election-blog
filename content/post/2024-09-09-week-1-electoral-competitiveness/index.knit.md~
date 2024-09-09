@@ -1,0 +1,62 @@
+---
+title: 'Week 1: Electoral Competitiveness'
+author: Package Build
+date: '2024-09-09'
+slug: week-1-electoral-competitiveness
+categories: []
+tags: []
+---
+
+
+
+
+
+
+
+
+
+``` r
+####----------------------------------------------------------#
+#### Visualize trends in national presidential popular vote. 
+####----------------------------------------------------------#
+
+# Visualize the two-party presidential popular over time. 
+d_popvote |> 
+  ggplot(aes(x = year, y = pv2p, color = party)) + 
+  geom_line() + 
+  scale_color_manual(values = c("dodgerblue4", "firebrick1")) + 
+  theme_bw()
+```
+
+<img src="index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+
+``` r
+my_custom_theme <- 
+  theme_light() + 
+  theme(panel.border = element_blank(),
+        plot.title = element_text(size = 15, hjust = 0.5), 
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text = element_text(size = 12),
+        strip.text = element_text(size = 18),
+        axis.line = element_line(colour = "black"),
+        legend.position = "top",
+        legend.text = element_text(size = 12),
+        text = element_text(family = "Georgia"))
+
+d_popvote |> 
+  ggplot(aes(x = year, y = pv2p, color = party)) + 
+  geom_line() + 
+  scale_color_manual(values = c("dodgerblue4", "firebrick1")) + 
+  my_custom_theme
+```
+
+<img src="index_files/figure-html/unnamed-chunk-3-2.png" width="672" />
+
+
+
+
+
+
+
+
+
