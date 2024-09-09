@@ -7,7 +7,7 @@ categories: []
 tags: []
 ---
 
-```{r}
+```{r echo=FALSE}
 library(ggplot2)
 library(maps)
 library(tidyverse)
