@@ -10,28 +10,6 @@ slug: "week-1-electoral-competitiveness"
 
 
 ```
-## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-## ✔ dplyr     1.1.4     ✔ readr     2.1.5
-## ✔ forcats   1.0.0     ✔ stringr   1.5.1
-## ✔ lubridate 1.9.3     ✔ tibble    3.2.1
-## ✔ purrr     1.0.2     ✔ tidyr     1.3.1
-## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-## ✖ dplyr::filter() masks stats::filter()
-## ✖ dplyr::lag()    masks stats::lag()
-## ✖ purrr::map()    masks maps::map()
-## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
-## Rows: 38 Columns: 9
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: ","
-## chr (2): party, candidate
-## dbl (3): year, pv, pv2p
-## lgl (4): winner, incumbent, incumbent_party, prev_admin
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-```
-
-```
 ## # A tibble: 2 × 3
 ##   party      candidate         pv2p
 ##   <chr>      <chr>            <dbl>
@@ -97,30 +75,11 @@ slug: "week-1-electoral-competitiveness"
 ## 2 R          8
 ```
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-1-1.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-1-2.png" width="672" />
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-2.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-3.png" width="672" />
 
 ```
-## Rows: 959 Columns: 14
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: ","
-## chr  (1): state
-## dbl (13): year, D_pv, R_pv, D_pv2p, R_pv2p, D_pv_lag1, R_pv_lag1, D_pv2p_lag...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+## NULL
 ```
-
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-1-3.png" width="672" />
-
-```
-## Warning in left_join(filter(d_pvstate_wide, year >= 1980), states_map, by = "region"): Detected an unexpected many-to-many relationship between `x` and `y`.
-## ℹ Row 1 of `x` matches multiple rows in `y`.
-## ℹ Row 1 of `y` matches multiple rows in `x`.
-## ℹ If a many-to-many relationship is expected, set `relationship =
-##   "many-to-many"` to silence this warning.
-```
-
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-1-4.png" width="672" />
 
 
 

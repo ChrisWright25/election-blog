@@ -8,7 +8,7 @@ tags: []
 slug: "week-1-electoral-competitiveness"
 ---
 
-```{r echo=FALSE}
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 library(ggplot2)
 library(maps)
 library(tidyverse)
@@ -46,14 +46,9 @@ d_popvote_wide |>
 ####----------------------------------------------------------#
 #### Visualize trends in national presidential popular vote. 
 ####----------------------------------------------------------#
+```
 
-# Visualize the two-party presidential popular over time. 
-d_popvote |> 
-  ggplot(aes(x = year, y = pv2p, color = party)) + 
-  geom_line() + 
-  scale_color_manual(values = c("dodgerblue4", "firebrick1")) + 
-  theme_bw()
-
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 my_custom_theme <- 
   theme_light() + 
   theme(panel.border = element_blank(),
@@ -107,7 +102,7 @@ d_pvstate_wide |>
   facet_wrap(facets = year ~.) + 
   geom_polygon(aes(fill = winner), color = "white") + 
   scale_fill_manual(values = c("dodgerblue4", "firebrick1")) + 
-  my_custom_theme + 
+  my_custom_theme + theme(axis.title = element_blank(), axis.text = element_blank())
   ggtitle("Presidential Vote Share (1980-2020)") + 
   theme(strip.text = element_text(size = 12), 
         aspect.ratio = 1)
