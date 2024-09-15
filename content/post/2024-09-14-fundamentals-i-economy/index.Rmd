@@ -1,0 +1,260 @@
+---
+title: 'Fundamentals I: Economy'
+author: Package Build
+date: '2024-09-14'
+slug: fundamentals-i-economy
+categories: []
+tags: []
+---
+
+``` {r, echo=FALSE, warning=FALSE, message=FALSE}
+library(car)
+library(tidyverse)
+
+# setwd("~")
+
+d_popvote <- read_csv("popvote_1948-2020.csv")
+d_fred <- read_csv("fred_econ.csv")
+d_fred$sp500move <- d_fred$sp500_high - d_fred$sp500_low
+d_bea <- read_csv("bea_econ.csv") |> 
+  rename(year = "Year",
+         quarter = "Quarter", 
+         gdp = "Gross domestic product", 
+         gnp = "Gross national product", 
+         dpi = "Disposable personal income", 
+         consumption = "Personal consumption expenditures", 
+         goods = "Goods", 
+         durables = "Durable goods", 
+         nondurables = "Nondurable goods", 
+         services = "Services", 
+         pop = "Population (midperiod, thousands)")
+d_inc_econ <- d_popvote |> 
+  filter(incumbent_party == TRUE) |> 
+  select(year, pv, pv2p, winner) |> 
+  left_join(d_fred |> filter(quarter == 2)) |> 
+  left_join(d_bea |> filter(quarter == "Q2") |> select(year, dpi))
+
+d_inc_econ_2 <- d_inc_econ |>
+  filter(year != 2020)
+```
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+# Pure GDP Growth Model
+d_inc_econ |> 
+  ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) + 
+  geom_text() + 
+  geom_hline(yintercept = 50, lty = 2) + 
+  geom_vline(xintercept = 0.01, lty = 2) +
+  labs(x = "Second Quarter GDP Growth (%)", 
+       y = "Incumbent Party's National Popular Vote Share") + 
+  theme_bw()
+
+cor(d_inc_econ$GDP_growth_quarterly, d_inc_econ$pv2p)
+
+# Regression
+reg_GDP <- lm(pv2p ~ GDP_growth_quarterly, 
+               data = d_inc_econ)
+reg_GDP |> summary()
+
+# Scatterplot with regression line
+d_inc_econ |> 
+  ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) + 
+  geom_text() + 
+  geom_smooth(method = "lm", formula = y ~ x) + 
+  labs(x = "Second Quarter GDP Growth (%)", 
+       y = "Incumbent Party's National Popular Vote Share", 
+       title = "Y = 51.25 + 0.274 * X") + 
+  theme_bw() + 
+  theme(plot.title = element_text(size = 18))
+
+# Testing Model ~ R^2
+summary(reg_GDP)$r.squared
+summary(reg_GDP)$adj.r.squared
+
+# MSE.
+hist(reg_GDP$model$pv2p - reg_GDP$fitted.values, 
+     main = "Histogram of True Y - Predicted Y")
+mse_GDP <- mean((reg_GDP$model$pv2p - reg_GDP$fitted.values)^2)
+mse_GDP
+sqrt(mse_GDP)
+
+# Model Testing: Cross-Validation (1000 Runs)
+out_samp_errors_GDP <- sapply(1:1000, function(i) {
+  years_out_samp_GDP <- sample(d_inc_econ$year, 9) 
+  mod_GDP <- lm(pv2p ~ GDP_growth_quarterly, 
+            d_inc_econ[!(d_inc_econ$year %in% years_out_samp_GDP),])
+  out_samp_pred_GDP <- predict(mod_GDP, d_inc_econ[d_inc_econ$year %in% years_out_samp_GDP,])
+  out_samp_truth_GDP <- d_inc_econ$pv2p[d_inc_econ$year %in% years_out_samp_GDP]
+  mean(out_samp_pred_GDP - out_samp_truth_GDP)
+})
+
+mean(abs(out_samp_errors_GDP))
+
+hist(out_samp_errors_GDP,
+     xlab = "",
+     main = "Mean Out-of-Sample Residual\n(1000 Runs of Cross-Validation)")
+
+# Predicting 2024
+
+GDP_new <- d_fred |> 
+  filter(year == 2024 & quarter == 2) |> 
+  select(GDP_growth_quarterly)
+
+# Predict.
+predict(reg_GDP, GDP_new)
+
+# Predict uncertainty.
+predict(reg_GDP, GDP_new, interval = "prediction")
+
+```
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+d_inc_econ |> 
+  ggplot(aes(x = unemployment, y = pv2p, label = year)) + 
+  geom_text() + 
+  labs(x = "Unemployment Rate (%)", 
+       y = "Incumbent Party's National Popular Vote Share") + 
+  theme_bw()
+
+cor(d_inc_econ$unemployment, d_inc_econ$pv2p)
+
+# Regression
+reg_unem <- lm(pv2p ~ unemployment, 
+               data = d_inc_econ)
+reg_unem |> summary()
+
+# Scatterplot with regression line
+d_inc_econ |> 
+  ggplot(aes(x = unemployment, y = pv2p, label = year)) + 
+  geom_text() + 
+  geom_smooth(method = "lm", formula = y ~ x) + 
+  labs(x = "Unemployment Rate (%)", 
+       y = "Incumbent Party's National Popular Vote Share", 
+       title = "Y = 53.63 + -0.312 * X") + 
+  theme_bw() + 
+  theme(plot.title = element_text(size = 18))
+
+# Testing Model ~ R^2
+summary(reg_unem)$r.squared
+summary(reg_unem)$adj.r.squared
+
+# MSE.
+hist(reg_unem$model$pv2p - reg_unem$fitted.values, 
+     main = "Histogram of True Y - Predicted Y")
+mse_unem <- mean((reg_unem$model$pv2p - reg_unem$fitted.values)^2)
+mse_unem
+sqrt(mse_unem)
+
+# Model Testing: Cross-Validation (1000 Runs)
+out_samp_errors_unem <- sapply(1:1000, function(i) {
+  years_out_samp_unem <- sample(d_inc_econ$year, 9) 
+  mod_unem <- lm(pv2p ~ unemployment, 
+            d_inc_econ[!(d_inc_econ$year %in% years_out_samp_unem),])
+  out_samp_pred_unem <- predict(mod_unem, d_inc_econ[d_inc_econ$year %in% years_out_samp_unem,])
+  out_samp_truth_unem <- d_inc_econ$pv2p[d_inc_econ$year %in% years_out_samp_unem]
+  mean(out_samp_pred_unem - out_samp_truth_unem)
+})
+
+mean(abs(out_samp_errors_unem))
+
+hist(out_samp_errors_unem,
+     xlab = "",
+     main = "Mean Out-of-Sample Residual\n(1000 Runs of Cross-Validation)")
+
+# Predicting 2024
+
+unemployment_new <- d_fred |> 
+  filter(year == 2024 & quarter == 2) |> 
+  select(unemployment)
+
+# Predict.
+predict(reg_unem, unemployment_new)
+
+# Predict uncertainty.
+predict(reg_unem, unemployment_new, interval = "prediction")
+
+
+
+```
+
+
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+
+
+d_inc_econ |> 
+  ggplot(aes(x = sp500move, y = pv2p, label = year)) + 
+  geom_text() + 
+  labs(x = "S&P 500 Movement", 
+       y = "Incumbent Party's National Popular Vote Share") + 
+  theme_bw()
+
+d_inc_econ |> 
+  ggplot(aes(x = CPI, y = pv2p, label = year)) + 
+  geom_text() + 
+  labs(x = "Consumer Price Index (Inflation)", 
+       y = "Incumbent Party's National Popular Vote Share") + 
+  theme_bw()
+
+# Correlation between CPI and S&P 500 movement
+cor(d_inc_econ$CPI, 
+    d_inc_econ$sp500move)
+
+# Regression
+reg_mix <- lm(pv2p ~ CPI + sp500move, 
+               data = d_inc_econ)
+reg_mix |> summary()
+
+# Testing Model ~ R^2
+summary(reg_mix)$r.squared
+summary(reg_mix)$adj.r.squared
+
+# MSE.
+hist(reg_mix$model$pv2p - reg_mix$fitted.values, 
+     main = "Histogram of True Y - Predicted Y")
+mse_mix <- mean((reg_mix$model$pv2p - reg_mix$fitted.values)^2)
+mse_mix
+sqrt(mse_mix)
+
+# Model Testing: Cross-Validation (1000 Runs)
+out_samp_errors_mix <- sapply(1:1000, function(i) {
+  years_out_samp_mix <- sample(d_inc_econ$year, 9) 
+  mod_mix <- lm(pv2p ~ CPI + sp500move, 
+            d_inc_econ[!(d_inc_econ$year %in% years_out_samp_mix),])
+  out_samp_pred_mix <- predict(mod_mix, d_inc_econ[d_inc_econ$year %in% years_out_samp_mix,])
+  out_samp_truth_mix <- d_inc_econ$pv2p[d_inc_econ$year %in% years_out_samp_mix]
+  mean(out_samp_pred_mix - out_samp_truth_mix)
+})
+
+mean(abs(out_samp_errors_mix))
+
+hist(out_samp_errors_mix,
+     xlab = "",
+     main = "Mean Out-of-Sample Residual\n(1000 Runs of Cross-Validation)")
+
+# Predicting 2024
+
+mix_new <- d_fred |> 
+  filter(year == 2024 & quarter == 2) |> 
+  select(c(sp500move, CPI))
+
+# Predict.
+predict(reg_mix, mix_new)
+
+# Predict uncertainty.
+predict(reg_mix, mix_new, interval = "prediction")
+
+
+
+```
+
+
+```{r}
+
+
+
