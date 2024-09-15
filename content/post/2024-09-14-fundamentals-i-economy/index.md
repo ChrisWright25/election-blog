@@ -58,7 +58,7 @@ tags: []
 ```
 
 ```
-## [1] 2.166803
+## [1] 2.267524
 ```
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-4.png" width="672" />
@@ -122,7 +122,7 @@ tags: []
 ```
 
 ```
-## [1] 2.222199
+## [1] 2.136583
 ```
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-4.png" width="672" />
@@ -187,7 +187,7 @@ tags: []
 ```
 
 ```
-## [1] 2.293806
+## [1] 2.423952
 ```
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-4.png" width="672" />
