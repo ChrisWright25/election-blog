@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Home on A minimal Hugo website</title>
+    <title>Home on Chris Wright&#39;s Election Blog</title>
     <link>http://localhost:4321/</link>
-    <description>Recent content in Home on A minimal Hugo website</description>
+    <description>Recent content in Home on Chris Wright&#39;s Election Blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 14 Sep 2024 00:00:00 +0000</lastBuildDate>
@@ -13,7 +13,7 @@
       <link>http://localhost:4321/post/2024/09/14/fundamentals-i-economy/</link>
       <pubDate>Sat, 14 Sep 2024 00:00:00 +0000</pubDate>
       <guid>http://localhost:4321/post/2024/09/14/fundamentals-i-economy/</guid>
-      <description>&lt;img src=&#34;http://localhost:4321/post/2024/09/14/fundamentals-i-economy/index_files/figure-html/unnamed-chunk-2-1.png&#34; width=&#34;672&#34; /&gt;&#xA;&lt;pre&gt;&lt;code&gt;## [1] 0.4336956&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;pre&gt;&lt;code&gt;## &#xA;## Call:&#xA;## lm(formula = pv2p ~ GDP_growth_quarterly, data = d_inc_econ)&#xA;## &#xA;## Residuals:&#xA;##     Min      1Q  Median      3Q     Max &#xA;## -6.7666 -3.3847 -0.7697  2.9121  8.8809 &#xA;## &#xA;## Coefficients:&#xA;##                      Estimate Std. Error t value Pr(&amp;gt;|t|)    &#xA;## (Intercept)           51.2580     1.1399  44.968   &amp;lt;2e-16 ***&#xA;## GDP_growth_quarterly   0.2739     0.1380   1.985   0.0636 .  &#xA;## ---&#xA;## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1&#xA;## &#xA;## Residual standard error: 4.834 on 17 degrees of freedom&#xA;## Multiple R-squared:  0.1881,&#x9;Adjusted R-squared:  0.1403 &#xA;## F-statistic: 3.938 on 1 and 17 DF,  p-value: 0.06358&#xA;&lt;/code&gt;&lt;/pr</description>
+      <description>&lt;blockquote&gt;&#xA;&lt;p&gt;&amp;ldquo;Read my lips: no new taxes&amp;rdquo;&lt;br&gt;&#xA;&amp;ndash; George H. W. Bush.&lt;/p&gt;&#xA;&lt;/blockquote&gt;&#xA;&lt;p&gt;Despite making this promise, Bush later reversed course on the statement and raised taxes. This decision by George H.W. Bush at the 1988 Republican National Convention is often cited as one of the reasons why he lost reelection in 1992. Other one-term presidents like Herbert Hoover and Jimmy Carter have seen their reelection chances dwindle based on their economic policy and the overall economic performance in the United States. This week, I will further examine the connection between economic performance and an incumbent&amp;rsquo;s reelection chance. To achieve this, I will complete extension 1 by creating several predictive models based on key economic indicators.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Week 1: Electoral Competitiveness</title>

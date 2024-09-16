@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Categories on A minimal Hugo website</title>
+    <title>Categories on Chris Wright&#39;s Election Blog</title>
     <link>https://chriswright25.github.io/election-blog/categories/</link>
-    <description>Recent content in Categories on A minimal Hugo website</description>
+    <description>Recent content in Categories on Chris Wright&#39;s Election Blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <atom:link href="https://chriswright25.github.io/election-blog/categories/index.xml" rel="self" type="application/rss+xml" />

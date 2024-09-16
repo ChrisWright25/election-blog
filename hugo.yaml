@@ -1,6 +1,6 @@
 baseurl: "https://chriswright25.github.io/election-blog/"  # please update this to your actual URL
 languageCode: "en-us"
-title: "A minimal Hugo website"
+title: "Chris Wright's Election Blog"
 theme: "hugo-xmin"
 googleAnalytics: ""
 disqusShortname: ""
@@ -19,7 +19,7 @@ menu:
 
 params:
   description: "A website built through Hugo and blogdown."
-  footer: "&copy; [Chris Wright] {Year} | [Github](https://github.com/yihui) | [Twitter](https://twitter.com/xieyihui)"
+  footer: "&copy; Chris Wright {Year} | [Github](https://github.com/ChrisWright25/election-blog)"
 
 markup:
   highlight:
