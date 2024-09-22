@@ -8,9 +8,12 @@ tags: []
 ---
 
 
+ ![Picture](/Users/chriswright/Downloads/gallup.jpg)
 
 
-![](/Users/chriswright/Downloads/gallup.jpg)
+image test
+
+
 
 
 

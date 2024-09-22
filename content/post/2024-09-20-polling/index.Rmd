@@ -8,6 +8,10 @@ tags: []
 ---
 
 
+ ![Picture](/Users/chriswright/Downloads/gallup.jpg)
+
+
+image test
 ```{r include=FALSE}
 ## Packages
 library(car)
@@ -90,9 +94,16 @@ summary(polls_C_dems$sample_size)
 
 ```
 
-![](/Users/chriswright/Downloads/gallup.jpg)
+
+
+```{r,}
 
 
 
+
+
+
+
+```
 
 
