@@ -1,0 +1,98 @@
+---
+title: Polling
+author: Package Build
+date: '2024-09-20'
+slug: polling
+categories: []
+tags: []
+---
+
+
+```{r include=FALSE}
+## Packages
+library(car)
+library(caret)
+library(CVXR)
+library(glmnet)
+library(tidyverse)
+
+## set working directory here
+setwd("~/Gov1347/election-blog/content/post/2024-09-20-polling")
+
+#Read in files
+polls_2016 <- read_csv("president_polls_2016.csv")
+polls_2020 <- read_csv("president_polls_2020.csv")
+polls_2024 <- read_csv("president_polls_2024.csv")
+
+d_vote <- read_csv("popvote_1948-2020.csv")
+d_vote$party[d_vote$party == "democrat"] <- "DEM"
+d_vote$party[d_vote$party == "republican"] <- "REP"
+
+# Subset for US Presidential race
+polls_2016 <- subset(polls_2016, polls_2016$state == "U.S.")
+
+# Renaming variables / cleanup for merging
+all_polls <- merge(polls_2016, polls_2020, by = "poll_id", all = TRUE)
+
+all_polls$new_grade <- ifelse(is.na(all_polls$grade), all_polls$fte_grade, all_polls$grade)
+
+all_polls$dem_polling <- ifelse(is.na(all_polls$adjpoll_clinton), all_polls$pct, all_polls$adjpoll_clinton)
+
+all_polls$party <- ifelse(is.na(all_polls$party), "DEM", all_polls$party)
+
+all_polls$dem_pv <- ifelse(is.na(all_polls$cycle.x), 51.31571, 47.05731)
+
+# Subset based on pollster quality
+polls_A <- subset(all_polls, new_grade == "A+" | new_grade == "A"| new_grade == "A-")
+polls_B <- subset(all_polls, new_grade == "B+" | new_grade == "B"| new_grade == "B-")
+polls_C <- subset(all_polls, new_grade == "C+" | new_grade == "C"| new_grade == "C-")
+
+# Set up for prediction
+polls_2024$dem_polling <- polls_2024$pct
+polls_2024_dems <- subset(polls_2024, polls_2024$party == "DEM")
+
+# Predicting using A+, A, and A- polls
+polls_A_dems <- subset(polls_A, party == "DEM")
+A_polls_lm <- lm(polls_A_dems$dem_pv ~ polls_A_dems$dem_polling)
+summary(A_polls_lm)
+A_predict <- mean(predict(A_polls_lm, polls_2024_dems))
+
+# Predicting using B+, B, and B- polls
+polls_B_dems <- subset(polls_B, party == "DEM")
+B_polls_lm <- lm(polls_B_dems$dem_pv ~ polls_B_dems$dem_polling)
+summary(B_polls_lm)
+B_predict <- mean(predict(B_polls_lm, polls_2024_dems))
+
+# Predicting using C+, C, and C- polls
+polls_C_dems <- subset(polls_C, party == "DEM")
+C_polls_lm <- lm(polls_C_dems$dem_pv ~ polls_C_dems$dem_polling)
+summary(C_polls_lm)
+C_predict <- mean(predict(C_polls_lm, polls_2024_dems))
+
+
+#Ensemble prediction
+combine_predict <- (A_predict + B_predict + C_predict) / 3
+
+
+# Further understanding the quality of polls
+mean(polls_A_dems$dem_polling)
+mean(polls_B_dems$dem_polling)
+mean(polls_C_dems$dem_polling)
+
+summary(polls_A_dems$dem_polling)
+summary(polls_B_dems$dem_polling)
+summary(polls_C_dems$dem_polling)
+
+summary(polls_A_dems$sample_size)
+summary(polls_B_dems$sample_size)
+summary(polls_C_dems$sample_size)
+
+
+```
+
+![](/Users/chriswright/Downloads/gallup.jpg)
+
+
+
+
+
