@@ -8,6 +8,13 @@ tags: []
 slug: "week-1-electoral-competitiveness"
 ---
 
+Welcome to my blog for GOV 1347. Throughout the semester I will be updating this blog and examining various techniques to forecast the 2024 election. For the first week the focus is electoral competitiveness. This blog will analyze the competitiveness of presidential elections and analyze which state vote Democrat or Republican consistently
+
+## Electoral Competitveness
+
+To examine whether elections in the US are competitive I utililzed a dataset of the presidential popular vote since 1948. Using this data, I plotted the popular vote for the Democrats and Republicans over time. If elections were competitive, you would expect to see lines that are close to one another and a back-and-forth trend in the winner of the popular vote.
+
+
 ```{r, echo=FALSE, warning=FALSE, message=FALSE}
 library(ggplot2)
 library(maps)
@@ -32,24 +39,24 @@ d_popvote <- read_csv("popvote_1948-2020.csv")
 ####----------------------------------------------------------#
 ```
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 my_custom_theme <- 
   theme_light() + 
   theme(panel.border = element_blank(),
         plot.title = element_text(size = 15, hjust = 0.5), 
-        axis.text.x = element_text(angle = 45, hjust = 1),
-        axis.text = element_text(size = 12),
+        axis.text = element_blank(),
         strip.text = element_text(size = 18),
-        axis.line = element_line(colour = "black"),
         legend.position = "top",
         legend.text = element_text(size = 12),
-        text = element_text(family = "Georgia"))
+        text = element_text(family = "Georgia"),
+        axis.line = element_blank(), 
+        axis.ticks = element_blank(), 
+        axis.title = element_blank())
 
 d_popvote |> 
   ggplot(aes(x = year, y = pv2p, color = party)) + 
   geom_line() + 
-  scale_color_manual(values = c("dodgerblue4", "firebrick1")) + 
-  my_custom_theme
+  scale_color_manual(values = c("dodgerblue4", "firebrick1"))
 
 ####----------------------------------------------------------#
 #### State-by-state map of presidential popular votes.
@@ -71,13 +78,42 @@ pv_map <- d_pvstate_wide |>
 # Make map grid of state winners for each election year available in the dataset. 
 pv_win_map <- pv_map |> 
   mutate(winner = ifelse(R_pv2p > D_pv2p, "republican", "democrat"))
-  
+
+state_abbrev <- data.frame(group = c(1:63), abbrev = c('AL', 'AR', 'AK', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL', 'GA', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MA', 'MA', 'MI', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NY', 'NY', 'NY', 'NC', 'NC', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'VA', 'VA', 'WA', 'WA', 'WA', 'WA', 'WA', 'WV', 'WI', 'WY'))
+
+merged_map_data <- merge(pv_win_map, state_abbrev, by = "group")
+state_labels_summarized <- merged_map_data %>%
+   group_by(abbrev) %>%
+   summarise(
+      long = mean(long), 
+      lat = mean(lat),
+      group = mean(group)
+   )  
+```
+
+
+Looking at the above line chart, it seems that elections have become more competitive in recent years. Although elections have swung between parties, the swing has often resulted in large victories. As the chart gets closer to the present the gap between the two parties has dwindled. However, it is important to note that elections in the US are not decided by popular vote but instead are decided by the electoral college. This means that this chart does not tell the full story of electoral competitiveness because there have been a few instances where the candidate who won the most votes did not win the [electoral college](https://www.nationalpopularvote.com/5-46-presidents-came-office-without-winning-national-popular-vote)
+
+## Electoral College
+The electoral college is a system of electing the US president based on electors. The electors equal the number of senators + the number of representatives in the house. In the 2020 election, Biden captured _56.8%__ of the electors in the electoral college (306), but only captured __51.3%__ of the popular vote
+
+
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 pv_win_map |> 
   ggplot(aes(long, lat, group = group)) + 
   geom_polygon(aes(fill = winner)) + 
   scale_fill_manual(values = c("dodgerblue4", "firebrick1")) + 
-  my_custom_theme
+  my_custom_theme + geom_text(data = state_labels_summarized, aes(label = abbrev, fontface = "bold"), size = 2.5, colour = "lightgrey") + ggtitle("2020 Electoral College")
 
+```
+
+
+The map above shows the outcome of the electoral college in the 2020 election. Another way to think about electoral competitiveness is at the state level. How many swing states exist?
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
 d_pvstate_wide |> 
   filter(year >= 1980) |> 
   left_join(states_map, by = "region") |> 
@@ -86,12 +122,54 @@ d_pvstate_wide |>
   facet_wrap(facets = year ~.) + 
   geom_polygon(aes(fill = winner), color = "white") + 
   scale_fill_manual(values = c("dodgerblue4", "firebrick1")) + 
-  my_custom_theme + theme(axis.title = element_blank(), axis.text = element_blank())
-  ggtitle("Presidential Vote Share (1980-2020)") + 
-  theme(strip.text = element_text(size = 12), 
-        aspect.ratio = 1)
+  my_custom_theme + theme(axis.title = element_blank(), axis.text = element_blank()) +
+  ggtitle("Presidential Vote Share (1980-2020)")
 ```
 
+In the map above, it appears that electoral competitiveness has decreased because there are more "safe states". In the elections from 1980 to 2000 most states voted for each party. However, since 2012 very few states have flipped. This conclusion is in line with the rise of [partisan polarization and entrenchment](https://www.nber.org/papers/w26669) in the US.
+
+## Predicting the 2024 Election
+
+For this week's prediction, I am using a simple model based on the 2016 and 2020 electoral college results. I assigned a larger weight to the 2020 model due to the assumption that closer results are more reflective of contemporary voter intention. The model predicted that Kamala Harris will capture __276__ electoral college votes and Donald Trump will win __262__. Below I plotted the model's results for each state. The lighter the color, the closer the model expects the race to be. Notably, Georgia, Wisconsin, and Arizona are expected to be battleground states.
+
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+pv2p_2024_states <- d_pvstate_wide |> 
+  filter(year == 2020) |> 
+  group_by(state) |> 
+  summarize(R_pv2p_2024 = 0.75*R_pv2p + 0.25*R_pv2p_lag1, 
+            D_pv2p_2024 = 0.75*D_pv2p + 0.25*D_pv2p_lag1) |> 
+  mutate(pv2p_2024_margin = R_pv2p_2024 - D_pv2p_2024, 
+         winner = ifelse(R_pv2p_2024 > D_pv2p_2024, "R", "D"), 
+         region = tolower(state))
+
+# Plot the margin of victory in a U.S. state map.
+pv2p_2024_states |> 
+  left_join(states_map, by = "region") |> 
+  ggplot(aes(long, lat, group = group)) + 
+  geom_polygon(aes(fill = pv2p_2024_margin), color = "black") + 
+  scale_fill_gradient2(high = "firebrick1", 
+                       low = "dodgerblue4", 
+                       mid = "white", 
+                       name = "win margin", 
+                       breaks = c(-50, -25, 0, 25, 50), 
+                       limits = c(-50, 50)) + 
+  theme_void()
+ 
+# Generate projected state winners and merge with electoral college votes to make 
+# summary of electoral college vote distributions. 
+ec <- read_csv("ec_full.csv")
+
+pv2p_2024_states <- pv2p_2024_states |> 
+  mutate(year = 2024) |> 
+  left_join(ec, by = c("state", "year"))
+```
+
+```{r include=FALSE}
+pv2p_2024_states |> 
+  group_by(winner) |> 
+  summarize(electoral_votes = sum(electors))
+```
 
 
 

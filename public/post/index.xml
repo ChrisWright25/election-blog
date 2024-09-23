@@ -27,7 +27,7 @@
       <link>http://localhost:4321/post/2024/09/09/week-1-electoral-competitiveness/</link>
       <pubDate>Mon, 09 Sep 2024 00:00:00 +0000</pubDate>
       <guid>http://localhost:4321/post/2024/09/09/week-1-electoral-competitiveness/</guid>
-      <description>&lt;p&gt;&lt;img src=&#34;http://localhost:4321/post/2024/09/09/week-1-electoral-competitiveness/index_files/figure-html/unnamed-chunk-2-1.png&#34; width=&#34;672&#34; /&gt;&lt;img src=&#34;http://localhost:4321/post/2024/09/09/week-1-electoral-competitiveness/index_files/figure-html/unnamed-chunk-2-2.png&#34; width=&#34;672&#34; /&gt;&lt;img src=&#34;http://localhost:4321/post/2024/09/09/week-1-electoral-competitiveness/index_files/figure-html/unnamed-chunk-2-3.png&#34; width=&#34;672&#34; /&gt;&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;## NULL&#xA;&lt;/code&gt;&lt;/pre&gt;</description>
+      <description>&lt;p&gt;Welcome to my blog for GOV 1347. Throughout the semester I will be updating this blog and examining various techniques to forecast the 2024 election. For the first week the focus is electoral competitiveness. This blog will analyze the competitiveness of presidential elections and analyze which state vote Democrat or Republican consistently&lt;/p&gt;&#xA;&lt;h2 id=&#34;electoral-competitveness&#34;&gt;Electoral Competitveness&lt;/h2&gt;&#xA;&lt;p&gt;To examine whether elections in the US are competitive I utililzed a dataset of the presidential popular vote since 1948. Using this data, I plotted the popular vote for the Democrats and Republicans over time. If elections were competitive, you would expect to see lines that are close to one another and a back-and-forth trend in the winner of the popular vote.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>
