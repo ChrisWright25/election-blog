@@ -1,0 +1,197 @@
+---
+title: 'Week 4: Incumbency'
+author: Chris Wright
+date: '2024-09-30'
+slug: week-4-incumbency
+categories: []
+tags: []
+---
+
+## Incumbency Advantage
+
+```{r include=FALSE}
+# Get your packages
+library(car)
+library(caret)
+library(CVXR)
+library(glmnet)
+library(kableExtra)
+library(maps)
+library(RColorBrewer)
+library(sf)
+library(tidyverse)
+library(viridis)
+
+# Read in data on reelection rates of congress people
+senate_reelection <- read.csv("FusionCharts.csv")
+house_reelection <- read.csv("FusionCharts (1).csv")
+
+# merge the data sets
+congress_reelection <- merge(house_reelection, senate_reelection, by = "Election.Cycle")
+
+```
+
+```{r echo=FALSE}
+# Plot the data on congress reelection
+ggplot(congress_reelection, aes(Election.Cycle)) + 
+  geom_line(aes(y = Value.x, colour = "House of Rep")) + 
+  geom_line(aes(y = Value.y, colour = "Senate")) + xlab("Election Year") + ylab(" % of incumbents reelected")
+
+```
+
+
+
+
+```{r include=FALSE}
+# Read federal grants dataset from Kriner & Reeves (2008). 
+d_pork_state <- read_csv("fedgrants_bystate_1988-2008.csv")
+
+
+```
+
+```{r echo=FALSE}
+# Chart timeframe of federal grant spending (election year vs non) and in swing states vs safe states
+d_pork_state |> 
+  filter(!is.na(state_year_type)) |> 
+  group_by(state_year_type) |>
+  summarize(mean_grant = mean(grant_mil, na.rm = T), se_grant = sd(grant_mil, na.rm = T)/sqrt(n())) |> 
+  ggplot(aes(x = state_year_type, y = mean_grant, ymin = mean_grant-1.96*se_grant, ymax = mean_grant+1.96*se_grant)) + 
+  coord_flip() + 
+  geom_bar(stat = "identity", fill = "chartreuse4") + 
+  geom_errorbar(width = 0.2) + 
+  labs(x = "Type of State & Year", 
+       y = "Federal Grant Spending (Millions of $)", 
+       title = "Federal Grant Spending (Millions $) by State Election Type") + 
+  theme_minimal() + 
+  theme(plot.title = element_text(size = 20),
+        axis.title = element_text(size = 15),
+        axis.text = element_text(size = 12))
+
+```
+
+
+## Who is the incumbent?
+
+
+
+
+
+
+## Time for a change model
+
+
+```{r echo=FALSE}
+# Read in data on time for change accuracy
+time_for_change <- read.csv("Time_for_change_model_predictions.csv")
+
+# Plot accuracy of Time for Change predictions
+ggplot(time_for_change, aes(Year)) + geom_point(aes(y = Two_party_vote_margin, shape = "0")) + geom_point(aes(y = Predicted_two_party_vote_margin, shape = "4")) + geom_line(aes(y = 0), linetype = "dotted") + ylab("Incumbent Party's Vote Share") + xlab("Election Year")
+
+```
+
+
+
+```{r include=FALSE}
+# Read in data for models
+d_econ <- read_csv("fred_econ.csv") |> 
+  filter(quarter == 2)
+d_vote <- read_csv("popvote_1948-2020 copy.csv")
+d_vote$party[d_vote$party == "democrat"] <- "DEM"
+d_vote$party[d_vote$party == "republican"] <- "REP"
+
+# Join data for time for change model
+d_tfc_train <- d_vote |> 
+  left_join(d_econ, by = "year") |> 
+  filter(incumbent_party) |>
+  mutate(incumbent = as.numeric(incumbent))
+
+# Estimate time for change model through 2016.
+tfc_mod_2016 <- lm(pv2p ~ GDP_growth_quarterly + incumbent + juneapp, 
+                   data = subset(d_tfc_train, year < 2020))
+summary(tfc_mod_2016)
+
+# Susbet data for 2024 prediction
+tfc_2024_data <- subset(d_tfc_train, year == "2024")
+
+# Predict 2024 using time for change
+predict(tfc_mod_2016, newdata = tfc_2024_data)
+
+
+
+# Fundamentals only model using regularization
+# Read polling and election results data. 
+d_pollav_natl <- read_csv("national_polls_1968-2024.csv")
+
+# Shape and merge polling and election data using November polls. 
+d_poll_nov <- d_vote |> 
+  left_join(d_pollav_natl |> 
+              group_by(year, party) |> 
+              top_n(1, poll_date) |> 
+              select(-candidate), 
+            by = c("year", "party")) |> 
+  rename(nov_poll = poll_support) |> 
+  filter(year <= 2020) |> 
+  drop_na()
+
+# Create dataset of polling average by week until the election. 
+d_poll_weeks <- d_pollav_natl |> 
+  group_by(year, party, weeks_left) |>
+  summarize(mean_poll_week = mean(poll_support)) |> 
+  filter(weeks_left <= 30) |> 
+  pivot_wider(names_from = weeks_left, values_from = mean_poll_week) |> 
+  left_join(d_vote, by = c("year", "party"))
+
+d_combined <- d_econ |> 
+  left_join(d_poll_weeks, by = "year") |> 
+  filter(year %in% c(unique(d_vote$year), 2024)) |> 
+  group_by(party) |> 
+  mutate(pv2p_lag1 = lag(pv2p, 1), 
+         pv2p_lag2 = lag(pv2p, 2)) |> 
+  ungroup() |> 
+  mutate(gdp_growth_x_incumbent = GDP_growth_quarterly * incumbent, 
+         rdpi_growth_quarterly = RDPI_growth_quarterly * incumbent,
+         cpi_x_incumbent = CPI * incumbent,
+         unemployment_x_incumbent = unemployment * incumbent,
+         sp500_x_incumbent = sp500_close * incumbent) # Generate interaction effects
+
+d_fund_inc <- d_combined |> 
+  filter(incumbent) |> 
+  select("year", "pv2p", "GDP_growth_quarterly", "RDPI", "RDPI_growth_quarterly", "CPI", "unemployment", "sp500_close",
+         "rdpi_growth_quarterly", "pv2p_lag1", "pv2p_lag2") 
+
+x.train.fund <- d_fund_inc |> 
+  filter(year <= 2020) |>
+  select(-c(year, pv2p)) |> 
+  slice(-1) |> 
+  as.matrix()
+y.train.fund <- d_fund_inc |> 
+  filter(year <= 2020) |> 
+  select(pv2p) |> 
+  slice(-1) |> 
+  as.matrix()
+x.test.fund <- d_fund_inc |> 
+  filter(year == 2024) |> 
+  select(-c(year, pv2p)) |> 
+  drop_na() |> 
+  as.matrix()
+
+# Estimate elastic-net using fundamental variables only.
+set.seed(02138)
+enet.fund <- cv.glmnet(x = x.train.fund, y = y.train.fund, intercept = FALSE, alpha = 0.5)
+lambda.min.enet.fund <- enet.fund$lambda.min
+
+# Predict 2024 national pv2p share using elastic-net. 
+predict(enet.fund, s = lambda.min.enet.fund, newx = x.test.fund)
+
+```
+
+
+
+
+
+
+
+
+
+
+
