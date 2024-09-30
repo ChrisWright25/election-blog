@@ -35,7 +35,7 @@ congress_reelection <- merge(house_reelection, senate_reelection, by = "Election
 # Plot the data on congress reelection
 ggplot(congress_reelection, aes(Election.Cycle)) + 
   geom_line(aes(y = Value.x, colour = "House of Rep")) + 
-  geom_line(aes(y = Value.y, colour = "Senate")) + xlab("Election Year") + ylab(" % of incumbents reelected")
+  geom_line(aes(y = Value.y, colour = "Senate")) + xlab("Election Year") + ylab(" % of incumbents reelected") + ylim(0, 100)
 
 ```
 
