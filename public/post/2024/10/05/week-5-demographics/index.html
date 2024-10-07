@@ -36,11 +36,34 @@
 <p>The map below shows the average age of registered voters in each state. Although the range is relatively small as it goes from 50 to 65, there are still some interesting comparative insights. The swing states of Nevada, Georgia, and North Carolina standout. Nevada has one of the oldest voting populations in the U.S., but Georgia and North Carolina have some of the youngest in the country. Understanding voting preferences of the elderly and youth appear to be critical in predicitng the election outcome in these states.</p>
 <img src="/post/2024/10/05/week-5-demographics/index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
 <h4 id="married">Married</h4>
-<p>The map below shows the percent of registered voters in each state that are married. North Carolina once again stands out as it has one of the highest percentage of single voters in the nation. This could hint that the candidate that better addresses issues that are critical to single voters could win the swing state.
-<img src="/post/2024/10/05/week-5-demographics/index_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
-<h4 id="renters--homeowners">Renters / Homeowners</h4>
+<p>The map below shows the percent of registered voters in each state that are married. North Carolina once again stands out as it has one of the highest percentage of single voters in the nation. This could hint that the candidate that better addresses issues that are critical to single voters could win the swing state.</p>
+<img src="/post/2024/10/05/week-5-demographics/index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+<h4 id="renters">Renters</h4>
+<p>Due to rising housing prices and its centrality as a political issue during this presidential cycle, I decided to include a graph on housing demographics in swing states. The map below shows the percentage of registered voters in each state that have never voted before and are renters. The map highlights the effect that housing policy could have on the election in Nevada as a large percentage <strong>(72.2%)</strong> of registered voters rent and have never voted before. Although the percentage of renters is low in other swing states, the demographic could still swing the election as the race is expected to be narrow in each state.</p>
 <img src="/post/2024/10/05/week-5-demographics/index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
 <h2 id="analyzing-new-prediction-model">Analyzing New Prediction Model</h2>
+<p>Centering on the housing issue, I decided to adjust the election prediction model to include data about housing. Using data from <a href="https://fred.stlouisfed.org/">FRED</a>, I added in historical data on rental and housing vacancy rates. Along with the housing data, I used GDP Q2 growth, difference in S&amp;P 500 open and close, and inflation (CPI) data to calculate a model. I then combined this model with a simple model using historical national polling averages to get a popular vote prediction. As I constructed the predictions, I noticed a significant difference based on whether I incldued or excluded &ldquo;outliers&rdquo;. In the case of the fundamental data the 2020 election is an outlier and in the case of polling averages the 2016 and 2020 elections are excluded as outliers. The two models and their predictions are listed below.</p>
+<table>
+  <thead>
+      <tr>
+          <th style="text-align: left">Model</th>
+          <th style="text-align: left">Harris Predicted Vote</th>
+          <th style="text-align: left">Trump Predicted Vote</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">Ensemble All Data</td>
+          <td style="text-align: left">53.4 %</td>
+          <td style="text-align: left">46.6%</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Ensemble Without Outliers</td>
+          <td style="text-align: left">47.6%</td>
+          <td style="text-align: left">52.4%</td>
+      </tr>
+  </tbody>
+</table>
 
 </main>
 
