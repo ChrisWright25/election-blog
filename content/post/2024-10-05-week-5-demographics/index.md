@@ -19,13 +19,28 @@ The takeaway from the graph and the article is that demographics alone have rela
 
 ## Analyzing the Voterfile
 
+Although it is impossible to know the demographics of voters before the election occurs, there are some tools that we can use to predict to the demographics of the election. One of the tools are lists of registered voters in each state. Although all registered voters will not turnout and some voters will register on election day, the lists give a good hint of potential demographics. Using these lists of registered voters, I will analyze a few demographics: Age, Married, Renters / Homeowners
 
 
 
 
 
+#### Age
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-2.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-3.png" width="672" />
+The map below shows the average age of registered voters in each state. Although the range is relatively small as it goes from 50 to 65, there are still some interesting comparative insights. The swing states of Nevada, Georgia, and North Carolina standout. Nevada has one of the oldest voting populations in the U.S., but Georgia and North Carolina have some of the youngest in the country. Understanding voting preferences of the elderly and youth appear to be critical in predicitng the election outcome in these states.
+
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+
+
+#### Married
+
+The map below shows the percent of registered voters in each state that are married. North Carolina once again stands out as it has one of the highest percentage of single voters in the nation. This could hint that the candidate that better addresses issues that are critical to single voters could win the swing state.
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+
+
+#### Renters / Homeowners
+
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
 
 
 

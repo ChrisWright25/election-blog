@@ -23,7 +23,7 @@ The takeaway from the graph and the article is that demographics alone have rela
 
 ## Analyzing the Voterfile
 
-
+Although it is impossible to know the demographics of voters before the election occurs, there are some tools that we can use to predict to the demographics of the election. One of the tools are lists of registered voters in each state. Although all registered voters will not turnout and some voters will register on election day, the lists give a good hint of potential demographics. Using these lists of registered voters, I will analyze a few demographics: Age, Married, Renters / Homeowners
 
 
 ```{r warning=FALSE, include=FALSE}
@@ -189,18 +189,37 @@ my_custom_theme <-
 ```
 
 
+#### Age
+
+The map below shows the average age of registered voters in each state. Although the range is relatively small as it goes from 50 to 65, there are still some interesting comparative insights. The swing states of Nevada, Georgia, and North Carolina standout. Nevada has one of the oldest voting populations in the U.S., but Georgia and North Carolina have some of the youngest in the country. Understanding voting preferences of the elderly and youth appear to be critical in predicitng the election outcome in these states.
+
 ```{r echo=FALSE, warning=FALSE}
 # Map of Age of Registered Voters
 voterstats_map |> 
      ggplot(aes(long, lat, group = group)) + 
-     geom_polygon(aes(fill = age)) + scale_fill_gradient(name = "% Married", low = "white", high = "lightblue", na.value = NA,) + my_custom_theme + theme(panel.background = element_rect(fill = "lightgrey"))
+     geom_polygon(aes(fill = age)) + scale_fill_gradient(name = "Age", low = "white", high = "lightblue", na.value = NA,) + my_custom_theme + theme(panel.background = element_rect(fill = "lightgrey"))
 
+
+```
+
+
+#### Married
+
+The map below shows the percent of registered voters in each state that are married. North Carolina once again stands out as it has one of the highest percentage of single voters in the nation. This could hint that the candidate that better addresses issues that are critical to single voters could win the swing state.
+``` {r echo=FALSE, warning=FALSE}
 # Map of Married Registered Voters
 voterstats_map |> 
      ggplot(aes(long, lat, group = group)) + 
      geom_polygon(aes(fill = marriage)) + scale_fill_gradient(name = "% Married", low = "white", high = "lightblue", na.value = NA,) + my_custom_theme + theme(panel.background = element_rect(fill = "lightgrey"))
 
 
+
+```
+
+
+#### Renters / Homeowners
+
+``` {r echo=FALSE, warning=FALSE}
 # Map of % of First-Time voters who are renters or homeowners
 voterstats_map |> 
      ggplot(aes(long, lat, group = group)) + 
