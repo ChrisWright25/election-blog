@@ -206,6 +206,7 @@ voterstats_map |>
 #### Married
 
 The map below shows the percent of registered voters in each state that are married. North Carolina once again stands out as it has one of the highest percentage of single voters in the nation. This could hint that the candidate that better addresses issues that are critical to single voters could win the swing state.
+
 ``` {r echo=FALSE, warning=FALSE}
 # Map of Married Registered Voters
 voterstats_map |> 
@@ -217,13 +218,15 @@ voterstats_map |>
 ```
 
 
-#### Renters / Homeowners
+#### Renters
+
+Due to rising housing prices and its centrality as a political issue during this presidential cycle, I decided to include a graph on housing demographics in swing states. The map below shows the percentage of registered voters in each state that have never voted before and are renters. The map highlights the effect that housing policy could have on the election in Nevada as a large percentage __(72.2%)__ of registered voters rent and have never voted before. Although the percentage of renters is low in other swing states, the demographic could still swing the election as the race is expected to be narrow in each state.
 
 ``` {r echo=FALSE, warning=FALSE}
 # Map of % of First-Time voters who are renters or homeowners
 voterstats_map |> 
      ggplot(aes(long, lat, group = group)) + 
-     geom_polygon(aes(fill = percent_renters + percent_homeowners)) + scale_colour_manual(values = c(0:100)) + scale_fill_gradient(name = "% First-Time Voters Renters or Homeowners", low = "white", high = "red", na.value = NA) + my_custom_theme + theme(panel.background = element_rect(fill = "lightgrey"))
+     geom_polygon(aes(fill = percent_renters)) + scale_colour_manual(values = c(0:100)) + scale_fill_gradient(name = "% First-Time Voters & Renters", low = "white", high = "red", na.value = NA) + my_custom_theme + theme(panel.background = element_rect(fill = "lightgrey"))
 
 
 
@@ -238,6 +241,13 @@ voterstats_map |>
 
 
 ## Analyzing New Prediction Model
+
+Centering on the housing issue, I decided to adjust the election prediction model to include data about housing. Using data from [FRED](https://fred.stlouisfed.org/), I added in historical data on rental and housing vacancy rates. Along with the housing data, I used GDP Q2 growth, difference in S&P 500 open and close, and inflation (CPI) data to calculate a model. I then combined this model with a simple model using historical national polling averages to get a popular vote prediction. As I constructed the predictions, I noticed a significant difference based on whether I incldued or excluded "outliers". In the case of the fundamental data the 2020 election is an outlier and in the case of polling averages the 2016 and 2020 elections are excluded as outliers. The two models and their predictions are listed below.
+
+Model | Harris Predicted Vote | Trump Predicted Vote
+------------- | ------------- | -------------
+Ensemble All Data | 53.4 % | 46.6%
+Ensemble Without Outliers | 47.6% | 52.4%
 
 ```{r warning=FALSE, include=FALSE}
 d_popvote <- read_csv("popvote_1948_2020.csv")

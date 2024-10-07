@@ -35,10 +35,13 @@ The map below shows the average age of registered voters in each state. Although
 #### Married
 
 The map below shows the percent of registered voters in each state that are married. North Carolina once again stands out as it has one of the highest percentage of single voters in the nation. This could hint that the candidate that better addresses issues that are critical to single voters could win the swing state.
+
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
 
 
-#### Renters / Homeowners
+#### Renters
+
+Due to rising housing prices and its centrality as a political issue during this presidential cycle, I decided to include a graph on housing demographics in swing states. The map below shows the percentage of registered voters in each state that have never voted before and are renters. The map highlights the effect that housing policy could have on the election in Nevada as a large percentage __(72.2%)__ of registered voters rent and have never voted before. Although the percentage of renters is low in other swing states, the demographic could still swing the election as the race is expected to be narrow in each state.
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
 
@@ -49,6 +52,13 @@ The map below shows the percent of registered voters in each state that are marr
 
 
 ## Analyzing New Prediction Model
+
+Centering on the housing issue, I decided to adjust the election prediction model to include data about housing. Using data from [FRED](https://fred.stlouisfed.org/), I added in historical data on rental and housing vacancy rates. Along with the housing data, I used GDP Q2 growth, difference in S&P 500 open and close, and inflation (CPI) data to calculate a model. I then combined this model with a simple model using historical national polling averages to get a popular vote prediction. As I constructed the predictions, I noticed a significant difference based on whether I incldued or excluded "outliers". In the case of the fundamental data the 2020 election is an outlier and in the case of polling averages the 2016 and 2020 elections are excluded as outliers. The two models and their predictions are listed below.
+
+Model | Harris Predicted Vote | Trump Predicted Vote
+------------- | ------------- | -------------
+Ensemble All Data | 53.4 % | 46.6%
+Ensemble Without Outliers | 47.6% | 52.4%
 
 
 
