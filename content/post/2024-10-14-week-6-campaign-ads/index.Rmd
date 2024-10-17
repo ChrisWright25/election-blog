@@ -1,0 +1,271 @@
+---
+title: 'Week 6: Campaign Ads'
+author: "Chris Wright"
+date: "2024-10-14"
+output: pdf_document
+categories: []
+tags: []
+slug: "week-6-campaign-ads"
+---
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+# Load libraries.
+## install via `install.packages("name")`
+library(car)
+library(caret)
+library(cowplot)
+library(curl)
+library(CVXR)
+library(foreign)
+library(geofacet)
+library(glmnet)
+library(haven)
+library(janitor)
+library(kableExtra)
+library(maps)
+library(mlr3)
+library(randomForest)
+library(ranger)
+library(RColorBrewer)
+library(rstan)
+library(scales)
+library(sf)
+library(shinystan)
+library(tidyverse)
+library(viridis)
+library(dplyr)
+
+## set working directory here
+# setwd("~")
+
+####----------------------------------------------------------#
+#### Read, merge, and process data.
+####----------------------------------------------------------#
+
+# Read popular vote datasets. 
+d_popvote <- read_csv("popvote_1948_2020.csv")
+
+# Read elector distribution dataset. 
+d_ec <- read_csv("corrected_ec_1948_2024.csv")
+
+# Read ads datasets. 
+ad_campaigns <- read_csv("ad_campaigns_2000-2012.csv")
+ad_creative <- read_csv("ad_creative_2000-2012.csv")
+ads_2020 <- read_csv("ads_2020.csv")
+campaign_spending <- read_csv("FEC_contributions_by_state_2008_2024.csv")
+
+# Read polling data. 
+d_polls <- read_csv("national_polls_1968-2024.csv")
+```
+
+<iframe width="560" height="315" src="https://www.youtube.com/watch?v=riDypP1KfOU" frameborder="0" allowfullscreen> </iframe>
+
+The above video is the famous [Daisy girl ad from the 1964 election](https://www.livingroomcandidate.org/commercials/1964/peace-little-girl-daisy) between Lyndon B. Johnson and Barry Goldwater. The ad has a direct message: Electing Barry Goldwater will lead to nuclear catastrophe. The ad is often cited as one of the most effective ads as it remained in the public conscience despite only being aired once. Additionally, the ad is often regarded as the first political attack ad.
+
+U.S. Presidential campaigns spend billions of dollars running advertisements across various forms of media including TV, Radio, and Social Media. Although they are a key component of the campaign strategy, the constant barrage of political ads in some key states has the opposite effect of [motivating voters](https://azmirror.com/2024/10/09/the-blitz-of-political-attack-ads-youre-seeing-may-be-doing-candidates-more-harm-than-good/). This week I will analyze data from the [Wesleyan Media Project](https://mediaproject.wesleyan.edu/) to better understand the composition and effect of political ads.
+
+
+## What Type of Political Ads are Being Aired?
+
+The term political ad is a broad umbrella and not all politcal ads are made the same. One way to break down politcal ads is how the position the candidate. In this breakdown, there are three way to categorize an ad: promoting a candidate, contrasting two candidates, attacking a candidate. The chart below shows how Democrats and Republicans have run ads within these categories from 2000-2012. The first trend that stands out is the decline in ads that directly promote a candidate. Another key takeaway is the significant amount of contrasting ads in the 2008 cycle by both parties. This could indicate that the parties thought the two candidates were very similar and needed to be diffrentiated to voters.
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Tone and Political Ads. 
+ad_campaigns |>
+  left_join(ad_creative) |>
+  group_by(cycle, party) |> mutate(tot_n=n()) |> ungroup() |>
+  group_by(cycle, party, ad_tone) |> summarise(pct=n()*100/first(tot_n)) |>
+  filter(!is.na(ad_tone)) |>
+  ggplot(aes(x = cycle, y = pct, fill = ad_tone, group = party)) +
+  geom_bar(stat = "identity") +
+  scale_x_continuous(breaks = seq(2000, 2012, 4)) +
+  ggtitle("Campaign Ads Aired By Tone") +
+  scale_fill_manual(values = c("red","orange","gray","darkgreen","white"), name = "tone") +
+  xlab("") + ylab("%") +
+  facet_wrap(~ party) + theme_minimal() +
+  theme(axis.title = element_text(size=20),
+        axis.text = element_text(size=15),
+        strip.text.x = element_text(size = 20))
+```
+
+
+Another way to categorize politcal ads is whether they focus on the candidate or their policies. The chart below shows the breakdown of this between Democrats and Republicans from 2000-2016. The interesting takeaway from this chart is the rise of personal ads in the 2016 cycle by Democrats. This rise was probably driven by personal scandals that surrounded Donald Trump. However, the data is not broken down into promote v. attack, so it is unclear if the ads were about Hillary or Trump as a person.
+
+``` {r echo=FALSE, message=FALSE, warning=FALSE}
+## The Purpose of Political Ads
+ad_campaigns |>
+  left_join(ad_creative) |>
+  group_by(cycle, party) |> mutate(tot_n=n()) |> ungroup() |>
+  group_by(cycle, party, ad_purpose) |> summarise(pct=n()*100/first(tot_n)) |>
+  filter(!is.na(ad_purpose)) |>
+  bind_rows( ##2016 raw data not public yet! This was entered manually
+    data.frame(cycle = 2016, ad_purpose = "personal", party = "democrat", pct = 67),
+    data.frame(cycle = 2016, ad_purpose = "policy", party = "democrat", pct = 12),
+    data.frame(cycle = 2016, ad_purpose = "both", party = "democrat", pct = 21),
+    data.frame(cycle = 2016, ad_purpose = "personal", party = "republican", pct = 11),
+    data.frame(cycle = 2016, ad_purpose = "policy", party = "republican", pct = 71),
+    data.frame(cycle = 2016, ad_purpose = "both", party = "republican", pct = 18)
+  ) |>
+  ggplot(aes(x = cycle, y = pct, fill = ad_purpose, group = party)) +
+  geom_bar(stat = "identity") +
+  scale_x_continuous(breaks = seq(2000, 2016, 4)) +
+  # ggtitle("Campaign Ads Aired By Purpose") +
+  scale_fill_manual(values = c("grey","red","darkgreen","black","white"), name = "purpose") +
+  xlab("") + ylab("%") +
+  facet_wrap(~ party) + theme_minimal() +
+  theme(axis.title = element_text(size=20),
+        axis.text = element_text(size=15),
+        strip.text.x = element_text(size = 20))
+```
+
+
+## When to Buy Political Ads
+
+Another part of the strategy around political ads beyond what type of ad to run is when to air the ads. The graphs below chart the amount of ad spending in the elections from 2000-2012. The graphs all show that spending increases as the election gets closer. This trend indicates that campaigns believe in a voter behavior model where voters have a short term memory and make their mind up shortly before voting.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Plot of When to buy campaign ads
+ad_campaigns |>
+  mutate(year = as.numeric(substr(air_date, 1, 4))) |>
+  mutate(month = as.numeric(substr(air_date, 6, 7))) |>
+  filter(year %in% c(2000, 2004, 2008, 2012), month > 7) |>
+  group_by(cycle, air_date, party) |>
+  summarise(total_cost = sum(total_cost)) |>
+  ggplot(aes(x=air_date, y=total_cost, color=party)) +
+  # scale_x_date(date_labels = "%b, %Y") +
+  scale_y_continuous(labels = dollar_format()) +
+  scale_color_manual(values = c("blue","red"), name = "") +
+  geom_line() + geom_point(size=0.5) +
+  facet_wrap(cycle ~ ., scales="free") +
+  xlab("") + ylab("ad spend") +
+  theme_bw() +
+  theme(axis.title = element_text(size=20),
+        axis.text = element_text(size=11),
+        strip.text.x = element_text(size = 20))
+```
+
+# Bellweather Ad States
+
+In elections, the term bellweather refers to locations that swing back and forth to accurately pick the winner. One of the most famous examples of a bellweather county in U.S. Presidential elections is [Clallam County in Washington](https://www.seattletimes.com/opinion/clallam-county-sure-knows-how-to-pick-em/) which has picked the Presidential winner accurately since 1976. In the same vein, the map below show which states are the "bellweathers" for ad spending from 2000-2012. The key takeaway from the map is that no state's ad buy has correctly predicted every election in the time frame. However, the states of Washington and Maine predicted 3 out of 4. Diving deeper into the data, most states had higher ad buys by Democrats in 2004; however, Kerry lost the election.
+```{r include=FALSE}
+bellweather_states <- data.frame(region = c("alabama", "arizona", "arkansas", "california", "colorado", "connecticut", "delaware", "florida", "georgia", "idaho", "illinois", "indiana", "iowa", "kansas", "kentucky", "louisiana", "maine", "maryland", "massachusetts", "michigan", "minnesota", "mississippi", "missouri", "montana", "nebraska", "nevada", "new hampshire", "new jersey", "new mexico", "new york", "north carolina", "north dakota", "ohio", "oklahoma", "oregon", "pennsylvania", "rhode island", "south carolina", "south dakota", "tennessee", "texas", "utah", "vermont", "virginia", "washington", "west virginia", "wisconsin", "wyoming"), ads_bellweather = c(2, 2, 1, 2, 2, 2, 0, 2, 2, 1, 2, 1, 1, 0, 2, 2, 3, 1, 2, 1, 1, 1, 1, 1, 2, 2, 1, 0, 1, 2, 2, 1, 2, 2, 2, 1, 1, 1, 1, 2, 1, 2, 0, 2, 3, 1, 1, 1))
+
+ad_campaigns_bellweather <- ad_campaigns |>
+  group_by(cycle, party, state) |> 
+  summarise(total_cost = sum(total_cost))
+
+
+## Tried to make for loops to analyze but realized data wasn't set up best for it so I did it manually
+##   for (state in ad_campaigns_bellweather$state) { ifelse(ad_campaigns_bellweather$total_cost[ad_campaigns_bellweather$cycle == 2000 & ad_campaigns_bellweather$party == "democrat"] > ad_campaigns$total_cost[ad_campaigns_bellweather$cycle == 2000 & ad_campaigns_bellweather$party == "republican"], print(state), print("NA")) }
+
+
+# Get the states map
+states_map <- map_data("state")
+
+# Merge map with bellweather data
+bellweather_map <- merge(states_map, bellweather_states, by = "region")
+
+# Theme for maps
+my_custom_theme <- 
+  theme_light() + 
+  theme(panel.border = element_blank(),
+        plot.title = element_text(size = 15, hjust = 0.5), 
+        axis.text = element_blank(),
+        strip.text = element_text(size = 18),
+        legend.title = element_text(size = 8),
+        legend.text = element_text(size = 7),
+        text = element_text(family = "Georgia"),
+        axis.line = element_blank(), 
+        axis.ticks = element_blank(), 
+        axis.title = element_blank())
+
+
+```
+
+
+
+```{r echo=FALSE}
+bellweather_map |> 
+     ggplot(aes(long, lat, group = group)) + 
+     geom_polygon(aes(fill = ads_bellweather)) + scale_fill_gradient(name = "Number", low = "white", high = "lightblue", na.value = NA) + my_custom_theme + theme(panel.background = element_rect(fill = "lightgrey")) + labs(title = "Times that Highest Ad Spender in State Won Electoral College 2000 - 2012") + theme(plot.title = element_text(size=12))
+```
+
+## Updating Model
+
+In the future, I may update my model to take into account campaign ad spending; however, I decided against it for now. This week, I updated my model with the latest national polling averages to get a national popular vote prediction. In the future, I will predict the electoral college to get a more accurate perception of the race. I used GDP Q2 growth, difference in S&P 500 open and close, and inflation (CPI) data to calculate a model. I then combined this model with a simple model using historical national polling averages to get a popular vote prediction. The ensemble model has Kamala Harris winning the popular vote __52%__ of the popular vote. This vote total should be enough to propel her to the White House as it is higher than Biden's in 2020 and Obama's in 2012.
+
+```{r include=FALSE}
+d_popvote <- read_csv("popvote_1948_2020.csv")
+d_fred <- read_csv("fred_econ copy 2.csv")
+d_fred$sp500move <- d_fred$sp500_high - d_fred$sp500_low
+
+fundamentals <- d_popvote |> 
+  filter(incumbent_party == TRUE) |> 
+  select(year, pv, pv2p, winner) |> 
+  left_join(d_fred |> filter(quarter == 2))
+
+
+# Training set with 2020
+fund_train <- fundamentals |> 
+  filter(year < 2024 & year > 1952)
+fund_test <- fundamentals |> 
+  filter(year == 2024)
+
+# With 2020
+fund_model <- lm(pv2p ~ GDP_growth_quarterly + sp500move + CPI, data = fund_train)
+summary(fund_model)
+
+fund.predict <- predict(fund_model, fund_test)
+
+
+# Polling Data Based Prediction
+
+polling <- read_csv("national_polls_1968-2024.csv")
+
+# Adjust popular vote dataset for merging
+d_popvote$party[d_popvote$party == "democrat"] <- "DEM"
+d_popvote$party[d_popvote$party == "republican"] <- "REP"
+
+# Create dataset of polling average by week until the election. 
+d_poll_weeks <- polling |> 
+  group_by(year, party, weeks_left) |>
+  summarize(mean_poll_week = mean(poll_support)) |> 
+  filter(weeks_left <= 30 & party == "DEM") |> 
+  pivot_wider(names_from = weeks_left, values_from = mean_poll_week) |> 
+  left_join(d_popvote, by = c("year", "party"))
+ 
+# Split into training and testing data based on inclusion or exclusion of 2024. 
+d_poll_weeks_train <- d_poll_weeks |> 
+  filter(year <= 2020)
+d_poll_weeks_test <- d_poll_weeks |> 
+  filter(year == 2024)
+
+colnames(d_poll_weeks)[3:33] <- paste0("poll_weeks_left_", 0:30)
+colnames(d_poll_weeks_train)[3:33] <- paste0("poll_weeks_left_", 0:30)
+colnames(d_poll_weeks_test)[3:33] <- paste0("poll_weeks_left_", 0:30)
+
+# Normal training and testing
+x.train <- d_poll_weeks_train |>
+  ungroup() |> 
+  select(all_of(paste0("poll_weeks_left_", 7:30))) |> 
+  as.matrix()
+y.train <- d_poll_weeks_train$pv2p
+x.test <- d_poll_weeks_test |>
+  ungroup() |> 
+  select(all_of(paste0("poll_weeks_left_", 7:30))) |> 
+  as.matrix()
+
+# Using elastic-net for normal poll predictions
+set.seed(02138)
+enet.poll <- cv.glmnet(x = x.train, y = y.train, alpha = 0.5)
+lambda.min.enet.poll <- enet.poll$lambda.min
+
+# Predict 2024 national pv2p share
+poll.predict <- (predict(enet.poll, s = lambda.min.enet.poll, newx = x.test))
+
+
+# Ensemble Prediction
+ensemble_with_all <- (fund.predict * 2/3 + poll.predict * 1/3)
+```
+
