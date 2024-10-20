@@ -80,8 +80,8 @@ trump_2016_states <- trump_2016 |> group_by(state)
 total_trump_field <- count(trump_2016)
 trump_field_states <- count(trump_2016_states)
 
-#field_offices_geocoded <- fo_add |> 
-    #geocode(city = city, state = state, method = 'osm', lat = latitude , long = longitude)
+field_offices_geocoded <- fo_add |> 
+    geocode(city = city, state = state, method = 'osm', lat = latitude , long = longitude)
 
 d_field_offices_transformed <- st_as_sf(field_offices_geocoded |> drop_na(), coords = c("longitude...10", "latitude...9"), crs = 4326) |>
     st_transform(crs = st_crs(us_geo)) |>
