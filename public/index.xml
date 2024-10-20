@@ -2,52 +2,52 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Home on Chris Wright&#39;s Election Blog</title>
-    <link>https://chriswright25.github.io/election-blog/</link>
+    <link>http://localhost:4321/</link>
     <description>Recent content in Home on Chris Wright&#39;s Election Blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 14 Oct 2024 00:00:00 +0000</lastBuildDate>
-    <atom:link href="https://chriswright25.github.io/election-blog/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:4321/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Week 6: Campaign Ads</title>
-      <link>https://chriswright25.github.io/election-blog/post/2024/10/14/week-6-campaign-ads/</link>
+      <link>http://localhost:4321/post/2024/10/14/week-6-campaign-ads/</link>
       <pubDate>Mon, 14 Oct 2024 00:00:00 +0000</pubDate>
-      <guid>https://chriswright25.github.io/election-blog/post/2024/10/14/week-6-campaign-ads/</guid>
+      <guid>http://localhost:4321/post/2024/10/14/week-6-campaign-ads/</guid>
       <description>&lt;iframe width=&#34;560&#34; height=&#34;315&#34; src=&#34;https://www.youtube.com/watch?v=riDypP1KfOU&#34; frameborder=&#34;0&#34; allowfullscreen&gt; &lt;/iframe&gt;&#xA;&lt;p&gt;The above video is the famous &lt;a href=&#34;https://www.livingroomcandidate.org/commercials/1964/peace-little-girl-daisy&#34;&gt;Daisy girl ad from the 1964 election&lt;/a&gt; between Lyndon B. Johnson and Barry Goldwater. The ad has a direct message: Electing Barry Goldwater will lead to nuclear catastrophe. The ad is often cited as one of the most effective ads as it remained in the public conscience despite only being aired once. Additionally, the ad is often regarded as the first political attack ad.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Week 5: Demographics</title>
-      <link>https://chriswright25.github.io/election-blog/post/2024/10/05/week-5-demographics/</link>
+      <link>http://localhost:4321/post/2024/10/05/week-5-demographics/</link>
       <pubDate>Sat, 05 Oct 2024 00:00:00 +0000</pubDate>
-      <guid>https://chriswright25.github.io/election-blog/post/2024/10/05/week-5-demographics/</guid>
+      <guid>http://localhost:4321/post/2024/10/05/week-5-demographics/</guid>
       <description>&lt;p&gt;Demographics and election prediction go hand-in-hand. Demographics refers to statistics about the population (Ex: Gender, Race, Age). Understanding demographics, their voting patterns, and predicting their turnout are key to an election outcome as a shift in key demographics have been the deciding factor in many elections. In the 1920 Presidential election, &lt;a href=&#34;https://www.womenshistory.org/articles/womens-political-participation-after-1920-myth-and-reality&#34;&gt;Warren G. Harding won the presidency&lt;/a&gt; partially due to the 19th Amendment which introduced a new demographic to the voting population: women. More recently, the 2008 election and 2016 election hinged on high turnout from unlikely demographics. In 2008, &lt;a href=&#34;https://academic.oup.com/poq/article/73/5/995/1868700&#34;&gt;Black voters turned out at a high leve&lt;/a&gt;l to carry Obama to the White House and in 2016 &lt;a href=&#34;https://www.npr.org/2016/11/14/501737150/rural-voters-played-a-big-part-in-helping-trump-defeat-clinton&#34;&gt;large turnout among rural voters&lt;/a&gt; catapulted Trump to victory.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Week 4: Incumbency</title>
-      <link>https://chriswright25.github.io/election-blog/post/2024/09/30/week-4-incumbency/</link>
+      <link>http://localhost:4321/post/2024/09/30/week-4-incumbency/</link>
       <pubDate>Mon, 30 Sep 2024 00:00:00 +0000</pubDate>
-      <guid>https://chriswright25.github.io/election-blog/post/2024/09/30/week-4-incumbency/</guid>
-      <description>&lt;h2 id=&#34;incumbency-advantage&#34;&gt;Incumbency Advantage&lt;/h2&gt;&#xA;&lt;p&gt;The term incumbency is always brought up when discussing forecasting elections, but why? In elections, incumbency is often seen as a boost In other words, those in office tend to stay in office. The graph below shows the percentage of congress members reelected since 1964. The graph supports the idea of an incumbency advantage as both Senators and Representatives have higher  than 60% reelection rate.&lt;/p&gt;&#xA;&lt;img src=&#34;https://chriswright25.github.io/election-blog/post/2024/09/30/week-4-incumbency/index_files/figure-html/unnamed-chunk-2-1.png&#34; width=&#34;672&#34; /&gt;&#xA;&lt;p&gt;However, incumbency at the presidential level is more nuanced and can be analyzed many different ways. One way of defining incumbency is the exact candidate. For example, Obama in the 2012 election would be an incumbent. In the &lt;strong&gt;11&lt;/strong&gt; presidential elections since 1948 with at least one incumbent running, &lt;strong&gt;7&lt;/strong&gt; incumbents have won reelection. Another way of considering incumbency is through party affiliation. For example, Kamala Harris would be an incumbent under this definition. This definition gives less power to the idea of an incumbency advantage as only &lt;strong&gt;8&lt;/strong&gt; of the &lt;strong&gt;18&lt;/strong&gt;  presidential elections have been won by the incumbent party. Lastly, a broad definition of incumbency could be candidates that have served in past presidential administrations. This definition captures candidates like Hillary Clinton who was Obama&amp;rsquo;s secretary of state. Under this advantage the incumbency advantage shrinks even more as only &lt;strong&gt;27%&lt;/strong&gt; of presidential winners since 1948 have served in past administrations.&lt;/p&gt;</description>
+      <guid>http://localhost:4321/post/2024/09/30/week-4-incumbency/</guid>
+      <description>&lt;h2 id=&#34;incumbency-advantage&#34;&gt;Incumbency Advantage&lt;/h2&gt;&#xA;&lt;p&gt;The term incumbency is always brought up when discussing forecasting elections, but why? In elections, incumbency is often seen as a boost In other words, those in office tend to stay in office. The graph below shows the percentage of congress members reelected since 1964. The graph supports the idea of an incumbency advantage as both Senators and Representatives have higher  than 60% reelection rate.&lt;/p&gt;&#xA;&lt;img src=&#34;http://localhost:4321/post/2024/09/30/week-4-incumbency/index_files/figure-html/unnamed-chunk-2-1.png&#34; width=&#34;672&#34; /&gt;&#xA;&lt;p&gt;However, incumbency at the presidential level is more nuanced and can be analyzed many different ways. One way of defining incumbency is the exact candidate. For example, Obama in the 2012 election would be an incumbent. In the &lt;strong&gt;11&lt;/strong&gt; presidential elections since 1948 with at least one incumbent running, &lt;strong&gt;7&lt;/strong&gt; incumbents have won reelection. Another way of considering incumbency is through party affiliation. For example, Kamala Harris would be an incumbent under this definition. This definition gives less power to the idea of an incumbency advantage as only &lt;strong&gt;8&lt;/strong&gt; of the &lt;strong&gt;18&lt;/strong&gt;  presidential elections have been won by the incumbent party. Lastly, a broad definition of incumbency could be candidates that have served in past presidential administrations. This definition captures candidates like Hillary Clinton who was Obama&amp;rsquo;s secretary of state. Under this advantage the incumbency advantage shrinks even more as only &lt;strong&gt;27%&lt;/strong&gt; of presidential winners since 1948 have served in past administrations.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Polling</title>
-      <link>https://chriswright25.github.io/election-blog/post/2024/09/20/polling/</link>
+      <link>http://localhost:4321/post/2024/09/20/polling/</link>
       <pubDate>Fri, 20 Sep 2024 00:00:00 +0000</pubDate>
-      <guid>https://chriswright25.github.io/election-blog/post/2024/09/20/polling/</guid>
+      <guid>http://localhost:4321/post/2024/09/20/polling/</guid>
       <description>&lt;img src=&#34;gallup.jpg&#34; width=&#34;33%&#34; height=&#34;33%&#34; style=&#34;display: block; margin: auto;&#34; /&gt;&#xA;&lt;p&gt;The picture above is of George Gallup. Gallup is considered to be the father of public opinion polling and founded the namesake polling organization, Gallup. Since Gallup revolutionized polling, it has been a mainstay when talking about elections. Although polls are widely conducted and a focal point of campaign news, the validity and accuracy of polls has always been in question. In the 1948 election, polls famously predicted a Dewey victory over Truman and more recently some polls underestimated the support for Trump in the 2016 election. These polling mishaps lead to one essential question: What makes a good poll?&lt;/p&gt;</description>
     </item>
     <item>
       <title>Fundamentals I: Economy</title>
-      <link>https://chriswright25.github.io/election-blog/post/2024/09/14/fundamentals-i-economy/</link>
+      <link>http://localhost:4321/post/2024/09/14/fundamentals-i-economy/</link>
       <pubDate>Sat, 14 Sep 2024 00:00:00 +0000</pubDate>
-      <guid>https://chriswright25.github.io/election-blog/post/2024/09/14/fundamentals-i-economy/</guid>
+      <guid>http://localhost:4321/post/2024/09/14/fundamentals-i-economy/</guid>
       <description>&lt;blockquote&gt;&#xA;&lt;p&gt;&amp;ldquo;Read my lips: no new taxes&amp;rdquo;&lt;br&gt;&#xA;&amp;ndash; George H. W. Bush.&lt;/p&gt;&#xA;&lt;/blockquote&gt;&#xA;&lt;p&gt;Despite making this promise, Bush later reversed course on the statement and raised taxes. This decision by George H.W. Bush at the 1988 Republican National Convention is often cited as one of the reasons why he lost reelection in 1992. Other one-term presidents like Herbert Hoover and Jimmy Carter have seen their reelection chances dwindle based on their economic policy and the overall economic performance in the United States. This week, I will further examine the connection between economic performance and an incumbent&amp;rsquo;s reelection chance. To achieve this, I will complete extension 1 by creating several predictive models based on key economic indicators.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Week 1: Electoral Competitiveness</title>
-      <link>https://chriswright25.github.io/election-blog/post/2024/09/09/week-1-electoral-competitiveness/</link>
+      <link>http://localhost:4321/post/2024/09/09/week-1-electoral-competitiveness/</link>
       <pubDate>Mon, 09 Sep 2024 00:00:00 +0000</pubDate>
-      <guid>https://chriswright25.github.io/election-blog/post/2024/09/09/week-1-electoral-competitiveness/</guid>
+      <guid>http://localhost:4321/post/2024/09/09/week-1-electoral-competitiveness/</guid>
       <description>&lt;p&gt;Welcome to my blog for GOV 1347. Throughout the semester I will be updating this blog and examining various techniques to forecast the 2024 election. For the first week the focus is electoral competitiveness. This blog will analyze the competitiveness of presidential elections and analyze which state vote Democrat or Republican consistently&lt;/p&gt;&#xA;&lt;h2 id=&#34;electoral-competitveness&#34;&gt;Electoral Competitveness&lt;/h2&gt;&#xA;&lt;p&gt;To examine whether elections in the US are competitive I utililzed a dataset of the presidential popular vote since 1948. Using this data, I plotted the popular vote for the Democrats and Republicans over time. If elections were competitive, you would expect to see lines that are close to one another and a back-and-forth trend in the winner of the popular vote.&lt;/p&gt;</description>
     </item>
   </channel>
