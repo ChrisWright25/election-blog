@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=4321&amp;path=livereload" data-no-instant defer></script>
+  <head><script src="/election-blog/livereload.js?mindelay=10&amp;v=2&amp;port=3860&amp;path=election-blog/livereload" data-no-instant defer></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Week 4: Incumbency | Chris Wright&#39;s Election Blog</title>
-    <link rel="stylesheet" href="/css/style.css" />
-    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="stylesheet" href="/election-blog/css/style.css" />
+    <link rel="stylesheet" href="/election-blog/css/fonts.css" />
     
   </head>
 
@@ -13,7 +13,7 @@
     <nav>
     <ul class="menu">
       
-      <li><a href="/">Home</a></li>
+      <li><a href="/election-blog/">Home</a></li>
       
     </ul>
     <hr/>
@@ -28,16 +28,16 @@
 <main>
 <h2 id="incumbency-advantage">Incumbency Advantage</h2>
 <p>The term incumbency is always brought up when discussing forecasting elections, but why? In elections, incumbency is often seen as a boost In other words, those in office tend to stay in office. The graph below shows the percentage of congress members reelected since 1964. The graph supports the idea of an incumbency advantage as both Senators and Representatives have higher  than 60% reelection rate.</p>
-<img src="/post/2024/09/30/week-4-incumbency/index_files/figure-html/unnamed-chunk-2-1.png" width="672" />
+<img src="/election-blog/post/2024/09/30/week-4-incumbency/index_files/figure-html/unnamed-chunk-2-1.png" width="672" />
 <p>However, incumbency at the presidential level is more nuanced and can be analyzed many different ways. One way of defining incumbency is the exact candidate. For example, Obama in the 2012 election would be an incumbent. In the <strong>11</strong> presidential elections since 1948 with at least one incumbent running, <strong>7</strong> incumbents have won reelection. Another way of considering incumbency is through party affiliation. For example, Kamala Harris would be an incumbent under this definition. This definition gives less power to the idea of an incumbency advantage as only <strong>8</strong> of the <strong>18</strong>  presidential elections have been won by the incumbent party. Lastly, a broad definition of incumbency could be candidates that have served in past presidential administrations. This definition captures candidates like Hillary Clinton who was Obama&rsquo;s secretary of state. Under this advantage the incumbency advantage shrinks even more as only <strong>27%</strong> of presidential winners since 1948 have served in past administrations.</p>
 <p>Even if we agree that the incumbency advantage exists, where does it come from? One explanation for incumbents having an advantage is their use of federal grants to increase favorability amongst voters. This is often termed <strong>pork barrel spending</strong>. The chart below gives some credence to this idea as federal grant spending increases significantly when comparing swing states to non-electorally competitive states.</p>
-<img src="/post/2024/09/30/week-4-incumbency/index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+<img src="/election-blog/post/2024/09/30/week-4-incumbency/index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
 <h2 id="who-is-the-incumbent-in-the-2024-election">Who is the Incumbent in the 2024 Election?</h2>
 <p>The issue of who is the incumbent in the 2024 election is easily answerable on the surface. Joe Biden isn&rsquo;t running so there is no incumbent. However, this question gets complicated under the surface. One could claim that Kamala Harris is the incumbent. This would align with the earlier definition of incumbents being from previous presidential administrations. However, the Vice President is not the President, so voters may not assign the same incumbency advantage to Kamala. Donald Trump also has a claim to incumbency. His steady presence in the media since the 2020 election has kept his name recognition in line with those of incumbents. Trump&rsquo;s claim to  incumbency is also validated by looking at past presidents who have sought nonconsecutive terms. Although Grover Cleveland is the only president to serve nonconsecutive terms, other past presidents have received an <a href="https://www.pewresearch.org/short-reads/2022/11/16/few-former-presidents-have-run-for-their-old-jobs-or-anything-else-after-leaving-office/">outsized portion</a> of the popular vote when they ran. This includes Martin Van Buren <strong>(10%)</strong>, Millard Fillmore <strong>(21.6%)</strong>, and Theodore Roosevelt <strong>(27.4%)</strong>. Their ability to capture large portions of the popular vote hint that they benefited from the incumbency advantage.</p>
 <p>Interestingly though, the 2024 election seems to be defined by both candidates not wanting to be deemed the incumbent. Each campaign is seeking to be the &ldquo;change&rdquo; candidate. Polling has been conflicted on who is better distancing themselves from incumbency. A recent <a href="https://www.nytimes.com/interactive/2024/09/08/us/politics/times-siena-poll-likely-electorate-crosstabs.html">NYTimes / Sienna poll</a> indicates that Trump better represents change while an <a href="https://www.nbcnews.com/politics/2024-election/poll-newly-popular-harris-challenging-trump-change-rcna171308">NBC News poll</a> has Harris leading by 9 points on the question of representing change.</p>
 <h2 id="time-for-a-change-model">Time for a Change Model</h2>
 <p>One election model that is built around the idea of incumbents is the <a href="https://centerforpolitics.org/crystalball/time-for-change-model-predicts-close-election-with-slight-edge-for-kamala-harris/">Time for Change model</a>. The model only uses three inputs: <strong>GDP growth in the second quarter, whether an incumbent is running, and the june approval polling of the incumbent president</strong>. The model has been very accurate in predicting post war elections as seen in the chart below. The model&rsquo;s predictions are <em>triangles</em> and the actual results are <em>circles</em>. Only in 1968 and 2016 did the model get the popular vote wrong. In addition to these election years, the model missed on the electoral college in 2000.
-<img src="/post/2024/09/30/week-4-incumbency/index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<img src="/election-blog/post/2024/09/30/week-4-incumbency/index_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 <p>While the Time for Change model is highly accurate and has a high R-squared (.82), my preferred model uses more inputs centered around the economy and using regularization to prevent overfitting which is an issue that election models are highly susceptible to due to the limited observations available. Although the time for change model favors Harris more than mine, both my model and the Time for Change model predict Kamala Harris to get below 50% of the two-party popular vote share in the 2024 election.</p>
 <table>
   <thead>
