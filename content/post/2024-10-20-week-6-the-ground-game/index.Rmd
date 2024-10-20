@@ -1,7 +1,7 @@
 ---
 title: 'Week 7: The Ground Game'
 author: Chris Wright
-date: '2024-10-20'
+date: '2024-10-19'
 slug: week-6-the-ground-game
 categories: []
 tags: []
@@ -132,25 +132,28 @@ d_ev_transformed <- st_as_sf(d_campaign_events |> drop_na(), coords = c("longitu
   shift_geometry() |> 
   st_make_valid()
 
-(ev16 <- ggplot() +
+ev16 <- ggplot() +
    geom_sf(data = us_geo) + 
    geom_sf(data = d_ev_transformed |> filter(year == 2016), aes(color = party), size = 3, alpha = 0.75, pch = 3) +
    ggtitle("2016 Campaign Events") +
-   theme_void())
+   theme_void()
 
-(ev20 <- ggplot() +
+ev20 <- ggplot() +
    geom_sf(data = us_geo) + 
    geom_sf(data = d_ev_transformed |> filter(year == 2020), aes(color = party), size = 3, alpha = 0.75, pch = 3) +
    ggtitle("2020 Campaign Events") +
-   theme_void())
+   theme_void()
 
-(ev24 <- ggplot() +
+ev24 <- ggplot() +
    geom_sf(data = us_geo) + 
    geom_sf(data = d_ev_transformed |> filter(year == 2024), aes(color = party), size = 3, alpha = 0.75, pch = 3) +
    ggtitle("2024 Campaign Events") +
-   theme_void())
+   theme_void()
+
 ggarrange(ev16, ev20, ev24, ncol = 1, nrow = 3)
 ```
+## Electoral College Model
+
 
 
 
