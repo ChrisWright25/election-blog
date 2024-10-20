@@ -1,0 +1,152 @@
+---
+title: 'Week 7: Ground Game'
+author: Chris Wright
+date: '2024-10-20'
+slug: week-7-ground-game
+categories: []
+tags: []
+---
+
+
+```{r include=FALSE}
+library(geofacet)
+library(ggpubr)
+library(ggthemes)
+library(haven)
+library(kableExtra)
+library(maps)
+library(mgcv)
+library(mgcViz)
+library(RColorBrewer)
+library(scales)
+library(sf)
+library(spData)
+library(stargazer)
+library(tidygeocoder)
+library(tidyverse)
+library(tigris)
+library(tmap)
+library(tmaptools)
+library(viridis)
+
+# Read in popular vote dataset
+d_popvote <- read_csv("popvote_1948_2020.csv")
+d_state_popvote <- read_csv("state_popvote_1948_2020.csv")
+d_state_popvote[d_state_popvote$state == "District of Columbia",]$state <- "District Of Columbia"
+
+# Read elector distribution dataset. 
+d_ec <- read_csv("corrected_ec_1948_2024.csv")
+
+# Read polling data. 
+d_polls <- read_csv("national_polls_1968-2024.csv")
+d_state_polls <- read_csv("state_polls_1968-2024.csv")
+
+# Read turnout data. 
+d_turnout <- read_csv("state_turnout_1980_2022.csv")
+
+# Read county turnout. 
+d_county_turnout <- read_csv("county_turnout.csv")
+
+# Read state-level demographics.
+d_state_demog <- read_csv("demographics.csv")
+
+# Read county demographics. 
+d_county_demog <- read_csv("county_demographics.csv")
+
+# Read campaign events datasets. 
+d_campaign_events <- read_csv("campaigns_2016_2024.csv")[,-1]
+```
+
+## Field Offices
+
+```{r message=FALSE, warning=FALSE}
+fo_add <- read_csv("fieldoffice_2012-2016_byaddress.csv")
+
+obama_2012 <- fo_add |> filter(year == 2012 & candidate == "Obama")
+obama_2012_states <- obama_2012 |> group_by(state)
+total_obama_field <- count(obama_2012)
+obama_field_states <- count(obama_2012_states)
+romney_2012 <- fo_add |> filter(year == 2012 & candidate == "Romney")
+romney_2012_states <- romney_2012 |> group_by(state)
+total_romney_field <- count(romney_2012)
+romney_field_states <- count(romney_2012_states)
+clinton_2016 <- fo_add |> filter(year == 2016 & candidate == "Clinton")
+clinton_2016_states <- clinton_2016 |> group_by(state)
+total_clinton_field <- count(clinton_2016)
+clinton_field_states <- count(clinton_2016_states)
+trump_2016 <- fo_add |> filter(year == 2016 & candidate == "Trump")
+trump_2016_states <- trump_2016 |> group_by(state)
+total_trump_field <- count(trump_2016)
+trump_field_states <- count(trump_2016_states)
+
+field_offices_geocoded <- fo_add |> 
+    geocode(city = city, state = state, method = 'osm', lat = latitude , long = longitude)
+
+d_field_offices_transformed <- st_as_sf(field_offices_geocoded |> drop_na(), coords = c("longitude...10", "latitude...9"), crs = 4326) |>
+    st_transform(crs = st_crs(us_geo)) |>
+    shift_geometry() |> 
+    st_make_valid()
+
+field_2012 <- ggplot() +
+    geom_sf(data = us_geo) + 
+    geom_sf(data = d_field_offices_transformed |> filter(year == 2012), aes(color = party), size = 3, alpha = 0.75, pch = 3) +
+    ggtitle("2012 Field Offices") +
+    theme_void()
+
+field_2016 <- ggplot() +
+    geom_sf(data = us_geo) + 
+    geom_sf(data = d_field_offices_transformed |> filter(year == 2016), aes(color = party), size = 3, alpha = 0.75, pch = 3) +
+    ggtitle("2016 Field Offices") +
+    theme_void()
+
+ggarrange(field_2012, field_2016)
+
+```
+
+
+## Campaign Events
+
+```{r message=FALSE, warning=FALSE}
+# Visualizing campaign events. 
+d_campaign_events$party[d_campaign_events$candidate %in% c("Trump / Pence", "Trump", "Pence", "Trump/Pence", "Vance")] <- "REP"
+d_campaign_events$party[d_campaign_events$candidate %in% c("Biden / Harris", "Biden", "Harris", "Biden/Harris", "Walz", "Kaine", "Clinton", "Clinton / Kaine")] <- "DEM"
+p.ev.1 <- d_campaign_events |> group_by(date, party) |> summarize(n_events = n(), year) |> filter(year == 2016) |> ggplot(aes(x = date, y = n_events, color = party)) + geom_point() + geom_smooth() + ggtitle("2016") + theme_bw()
+p.ev.2 <- d_campaign_events |> group_by(date, party) |> summarize(n_events = n(), year) |> filter(year == 2020) |> ggplot(aes(x = date, y = n_events, color = party)) + geom_point() + geom_smooth() + ggtitle("2020") +  theme_bw()
+p.ev.3 <- d_campaign_events |> group_by(date, party) |> summarize(n_events = n(), year) |> filter(year == 2024) |> ggplot(aes(x = date, y = n_events, color = party)) + geom_point() + geom_smooth() + ggtitle("2024") + theme_bw()
+
+ggarrange(p.ev.1, p.ev.2, p.ev.3)
+
+
+# Mapping Campaign Events
+d_campaign_events <- read_csv("campaign_events_geocoded.csv")
+d_campaign_events$party[d_campaign_events$candidate %in% c("Trump / Pence", "Trump", "Pence", "Trump/Pence", "Vance")] <- "REP"
+d_campaign_events$party[d_campaign_events$candidate %in% c("Biden / Harris", "Biden", "Harris", "Biden/Harris", "Walz", "Kaine", "Clinton", "Clinton / Kaine")] <- "DEM"
+
+us_geo <- states(cb = TRUE) |> 
+  shift_geometry() |> 
+  filter(STUSPS %in% unique(fo_add$state))
+
+d_ev_transformed <- st_as_sf(d_campaign_events |> drop_na(), coords = c("longitude", "latitude"), crs = 4326) |>
+  st_transform(crs = st_crs(us_geo)) |>
+  shift_geometry() |> 
+  st_make_valid()
+
+(ev16 <- ggplot() +
+   geom_sf(data = us_geo) + 
+   geom_sf(data = d_ev_transformed |> filter(year == 2016), aes(color = party), size = 3, alpha = 0.75, pch = 3) +
+   ggtitle("2016 Campaign Events") +
+   theme_void())
+
+(ev20 <- ggplot() +
+   geom_sf(data = us_geo) + 
+   geom_sf(data = d_ev_transformed |> filter(year == 2020), aes(color = party), size = 3, alpha = 0.75, pch = 3) +
+   ggtitle("2020 Campaign Events") +
+   theme_void())
+
+(ev24 <- ggplot() +
+   geom_sf(data = us_geo) + 
+   geom_sf(data = d_ev_transformed |> filter(year == 2024), aes(color = party), size = 3, alpha = 0.75, pch = 3) +
+   ggtitle("2024 Campaign Events") +
+   theme_void())
+ggarrange(ev16, ev20, ev24, ncol = 1, nrow = 3)
+```
