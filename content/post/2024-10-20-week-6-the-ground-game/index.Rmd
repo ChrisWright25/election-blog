@@ -107,7 +107,7 @@ field_2016 <- ggplot() +
     theme_void()
 ```
 
-```{undefined echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Map the field offices locations
 ggarrange(field_2012, field_2016)
 
@@ -168,6 +168,7 @@ ev24 <- ggplot() +
 # Map the campaing event locations
 ggarrange(ev16, ev20, ev24, ncol = 1, nrow = 3)
 ```
+
 ## Electoral College Model
 
 
