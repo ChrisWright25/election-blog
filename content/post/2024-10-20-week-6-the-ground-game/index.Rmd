@@ -63,7 +63,7 @@ d_campaign_events <- read_csv("campaigns_2016_2024.csv")[,-1]
 
 ## Field Offices
 
-The first part of the ground game I will analyze is the presence of field offices.
+The first part of the ground game I will analyze is the presence of field offices. Field offices are physical locations that coordinate campaign activies in a locale and can be signs that a campaign views the region as important. In the two maps below, I have plotted the field office locations from the 2012 and 2016 elections. One important thing to note is that the typical party colors are flipped in the maps. One key takeaway from the maps is that Republicans tend to concentrate their offices in a few areas and Democrats spread out their offices including to areas they have little support like Montana and Alaska. In both elections, Democrats spent more resources on field offices as Obama had __791__ compared to Romney's __283__ and Clinton had __538__ compared to Trump's __165__.
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
@@ -119,9 +119,16 @@ trump_field_states <- count(trump_2016_states)
 # Add in output graph of field office locations
 knitr::include_graphics("field_office_locations.png")
 ```
+The field office data also disputes the widely accepted conlusion that Hillary Clinton lost in 2016 due to her weak ground game in [Wisconsin and Michigan](https://www.businessinsider.com/why-clinton-lost-michigan-wisconsin-2016-11). Clinton had __40__ and __27__ field offices in Wisconsin and Michigan respectively compared to Trump's __13__ and __22__. Additionally, Trump had less offices in these swing states than Romney in 2012.
+
+Although it is difficult to find complete data on the state of field offices in the 2024 election, it appears hat Democrats will once again have the advantage as [PBS reported in early September](https://www.pbs.org/newshour/politics/harris-and-trump-campaigns-prepare-for-intense-sprint-to-election-day) that Harris had __300__ field offices in swing states while Trump had __100__ offices.
+
 
 
 ## Campaign Events
+
+Another point of the ground game where 2024 data is accessible is the amount of campaign events. Campaign events include public appearances like rallys, townhalls, and the [occasional McDonald's visit](https://www.nytimes.com/2024/10/20/us/politics/trump-mcdonalds-fries.html). The graphs below show the number of campaign events as the campaign gets closer to election day. The immediate conclusion is that events are more frequent as the election gets closer. Interestingly, this trend hasn't fully taken effect for the 2024 election. One potential explanation for this is the increased threat of politcal violence towards candidates this election cycle.
+
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 # Visualizing campaign events. 
@@ -174,6 +181,7 @@ ev24 <- ggplot() +
    theme_void()
 ```
 
+The maps below show the location of campaign events during the 2016, 2020, and 2024 election. The maps are evidence of calcification in politics. In the 2024 election, campaign events have been heavily concentrated in swing states compared to past cycles.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Map the campaing event locations
@@ -183,11 +191,13 @@ ggarrange(ev16, ev20, ev24, ncol = 1, nrow = 3)
 ## Electoral College Model
 
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE, include=FALSE}
 
 prediction_data <- data.frame(state = c("AL","AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI" , "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD","MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC","SD", "TN","TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"), value = c(0, 0, NA, 0, 1, 1, 1, 1, 0, NA, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, NA, 1, 0, 0, 1, 0, NA, 1, 1, 1, 1, NA, 0, 0, 0, 1, NA, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, NA, 0))
 
+```
 
+```{r echo=FALSE}
 plot_usmap(region = "states", 
            data = prediction_data,
            values = "value",
