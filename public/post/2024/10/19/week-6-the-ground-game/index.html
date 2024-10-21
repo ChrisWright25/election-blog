@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=4321&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Week 7: The Ground Game | Chris Wright&#39;s Election Blog</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Home</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">Week 7: The Ground Game</span></h1>
+<h2 class="author">Chris Wright</h2>
+<h2 class="date">2024/10/19</h2>
+</div>
+
+<main>
+<h2 id="field-offices">Field Offices</h2>
+<pre><code class="language-r"># Map the field offices locations
+ggarrange(field_2012, field_2016)
+</code></pre>
+<img src="/post/2024/10/19/week-6-the-ground-game/index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+<h2 id="campaign-events">Campaign Events</h2>
+<pre><code class="language-r"># Plot the campaign event timelines
+ggarrange(p.ev.1, p.ev.2, p.ev.3)
+</code></pre>
+<pre><code>## `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
+## `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
+## `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
+</code></pre>
+<img src="/post/2024/10/19/week-6-the-ground-game/index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+<pre><code class="language-r"># Map the campaing event locations
+ggarrange(ev16, ev20, ev24, ncol = 1, nrow = 3)
+</code></pre>
+<img src="/post/2024/10/19/week-6-the-ground-game/index_files/figure-html/unnamed-chunk-7-1.png" width="672" />
+## Electoral College Model
+<pre><code class="language-r">prediction_data &lt;- data.frame(state = c(&quot;AL&quot;,&quot;AK&quot;, &quot;AZ&quot;, &quot;AR&quot;, &quot;CA&quot;, &quot;CO&quot;, &quot;CT&quot;, &quot;DE&quot;, &quot;FL&quot;, &quot;GA&quot;, &quot;HI&quot; , &quot;ID&quot;, &quot;IL&quot;, &quot;IN&quot;, &quot;IA&quot;, &quot;KS&quot;, &quot;KY&quot;, &quot;LA&quot;, &quot;ME&quot;, &quot;MD&quot;,&quot;MA&quot;, &quot;MI&quot;, &quot;MN&quot;, &quot;MS&quot;, &quot;MO&quot;, &quot;MT&quot;, &quot;NE&quot;, &quot;NV&quot;, &quot;NH&quot;, &quot;NJ&quot;, &quot;NM&quot;, &quot;NY&quot;, &quot;NC&quot;, &quot;ND&quot;, &quot;OH&quot;, &quot;OK&quot;, &quot;OR&quot;, &quot;PA&quot;, &quot;RI&quot;, &quot;SC&quot;,&quot;SD&quot;, &quot;TN&quot;,&quot;TX&quot;, &quot;UT&quot;, &quot;VT&quot;, &quot;VA&quot;, &quot;WA&quot;, &quot;WV&quot;, &quot;WI&quot;, &quot;WY&quot;), value = c(0, 0, NA, 0, 1, 1, 1, 1, 0, NA, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, NA, 1, 0, 0, 1, 0, NA, 1, 1, 1, 1, NA, 0, 0, 0, 1, NA, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, NA, 0))
+
+
+plot_usmap(region = &quot;states&quot;, 
+           data = prediction_data,
+           values = &quot;value&quot;,
+           color = &quot;white&quot;) + scale_fill_gradient(low = &quot;firebrick&quot;, high = &quot;steelblue1&quot;, na.value = &quot;purple&quot;)
+</code></pre>
+<img src="/post/2024/10/19/week-6-the-ground-game/index_files/figure-html/unnamed-chunk-8-1.png" width="672" />
+<pre><code class="language-r"># Map for final prediction
+prediction_data_final &lt;- data.frame(state = c(&quot;AL&quot;,&quot;AK&quot;, &quot;AZ&quot;, &quot;AR&quot;, &quot;CA&quot;, &quot;CO&quot;, &quot;CT&quot;, &quot;DE&quot;, &quot;FL&quot;, &quot;GA&quot;, &quot;HI&quot; , &quot;ID&quot;, &quot;IL&quot;, &quot;IN&quot;, &quot;IA&quot;, &quot;KS&quot;, &quot;KY&quot;, &quot;LA&quot;, &quot;ME&quot;, &quot;MD&quot;,&quot;MA&quot;, &quot;MI&quot;, &quot;MN&quot;, &quot;MS&quot;, &quot;MO&quot;, &quot;MT&quot;, &quot;NE&quot;, &quot;NV&quot;, &quot;NH&quot;, &quot;NJ&quot;, &quot;NM&quot;, &quot;NY&quot;, &quot;NC&quot;, &quot;ND&quot;, &quot;OH&quot;, &quot;OK&quot;, &quot;OR&quot;, &quot;PA&quot;, &quot;RI&quot;, &quot;SC&quot;,&quot;SD&quot;, &quot;TN&quot;,&quot;TX&quot;, &quot;UT&quot;, &quot;VT&quot;, &quot;VA&quot;, &quot;WA&quot;, &quot;WV&quot;, &quot;WI&quot;, &quot;WY&quot;), value = c(0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0))
+
+
+plot_usmap(region = &quot;states&quot;, 
+           data = prediction_data_final,
+           values = &quot;value&quot;,
+           color = &quot;white&quot;) + scale_fill_gradient(low = &quot;firebrick&quot;, high = &quot;steelblue1&quot;)
+</code></pre>
+<img src="/post/2024/10/19/week-6-the-ground-game/index_files/figure-html/unnamed-chunk-10-1.png" width="672" />
+<table>
+  <thead>
+      <tr>
+          <th style="text-align: left">State</th>
+          <th style="text-align: left">Harris Predicted Two-Party Vote</th>
+          <th style="text-align: left">Trump Predicted Two-Party Vote</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">Arizona</td>
+          <td style="text-align: left">46.8%</td>
+          <td style="text-align: left">53.2%%</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Georgia</td>
+          <td style="text-align: left">48.5%</td>
+          <td style="text-align: left">51.5%</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Michigan</td>
+          <td style="text-align: left">52.4%</td>
+          <td style="text-align: left">47.6%</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Nevada</td>
+          <td style="text-align: left">49.2%</td>
+          <td style="text-align: left">50.8%</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">North Carolina</td>
+          <td style="text-align: left">47.0%</td>
+          <td style="text-align: left">53.0%</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Pennsylvania</td>
+          <td style="text-align: left">52.4%</td>
+          <td style="text-align: left">47.6%</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Wisconsin</td>
+          <td style="text-align: left">51.8%</td>
+          <td style="text-align: left">48.2%</td>
+      </tr>
+  </tbody>
+</table>
+
+</main>
+
+  <footer>
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<script src="//cdn.jsdelivr.net/combine/npm/katex/dist/katex.min.js,npm/katex/dist/contrib/auto-render.min.js,npm/@xiee/utils/js/render-katex.js" defer></script>
+
+<script src="//cdn.jsdelivr.net/npm/@xiee/utils/js/center-img.min.js" defer></script>
+
+  
+  <hr/>
+  © Chris Wright 2024 | <a href="https://github.com/ChrisWright25/election-blog">Github</a>
+  
+  </footer>
+  </body>
+</html>
+
