@@ -339,6 +339,7 @@ plot_usmap(region = "states",
 
 Listed below are the predicted two-party vote shares from the state models.
 
+
 State | Harris Predicted Two-Party Vote | Trump Predicted Two-Party Vote
 ------------- | ------------- | -------------
 Arizona | 46.8% | 53.2%
