@@ -2,7 +2,10 @@
 title: 'Week 7: The Ground Game'
 author: "Chris Wright"
 date: "2024-10-19"
-output: pdf_document
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
 categories: []
 tags: []
 slug: "week-6-the-ground-game"
