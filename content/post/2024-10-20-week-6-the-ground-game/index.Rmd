@@ -7,7 +7,7 @@ categories: []
 tags: []
 ---
 
-
+After discussing the air game part of campaigns last week, I will spend time discussing the ground game this week. While the air game focuses on advertisements, the ground games focuses on human capital. Campaigns mobilize a large number of volunteers to canvass as part of their Get Out the Vote (GOTV) strategy. Similar to the air game, the ground game is focused less on persuading voters but instead on increasing turnout of likely voters.
 
 ```{r include=FALSE}
 library(geofacet)
@@ -62,6 +62,9 @@ d_campaign_events <- read_csv("campaigns_2016_2024.csv")[,-1]
 
 ## Field Offices
 
+The first part of the ground game I will analyze is the presence of field offices.
+
+
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 fo_add <- read_csv("fieldoffice_2012-2016_byaddress.csv")
 
@@ -82,35 +85,38 @@ trump_2016_states <- trump_2016 |> group_by(state)
 total_trump_field <- count(trump_2016)
 trump_field_states <- count(trump_2016_states)
 
-field_offices_geocoded <- fo_add |> 
-    geocode(city = city, state = state, method = 'osm', lat = latitude , long = longitude)
+# Note: This code works but I commented it out because it take >10 minutes to run. Instead I inserted a JPEG of the output graph
+#field_offices_geocoded <- fo_add |> 
+    #geocode(city = city, state = state, method = 'osm', lat = latitude , long = longitude)
 
-us_geo <- states(cb = TRUE) |> 
-  shift_geometry() |> 
-  filter(STUSPS %in% unique(fo_add$state))
+#us_geo <- states(cb = TRUE) |> 
+  #shift_geometry() |> 
+  #filter(STUSPS %in% unique(fo_add$state))
 
-d_field_offices_transformed <- st_as_sf(field_offices_geocoded |> drop_na(), coords = c("longitude...10", "latitude...9"), crs = 4326) |>
-    st_transform(crs = st_crs(us_geo)) |>
-    shift_geometry() |> 
-    st_make_valid()
+#d_field_offices_transformed <- st_as_sf(field_offices_geocoded |> drop_na(), coords = c("longitude...10", "latitude...9"), crs = 4326) |>
+    #st_transform(crs = st_crs(us_geo)) |>
+   # shift_geometry() |> 
+   # st_make_valid()
 
-field_2012 <- ggplot() +
-    geom_sf(data = us_geo) + 
-    geom_sf(data = d_field_offices_transformed |> filter(year == 2012), aes(color = party), size = 3, alpha = 0.75, pch = 3) +
-    ggtitle("2012 Field Offices") +
-    theme_void()
+#field_2012 <- ggplot() +
+    #geom_sf(data = us_geo) + 
+    #geom_sf(data = d_field_offices_transformed |> filter(year == 2012), aes(color = party), size = 3, #alpha = 0.75, pch = 3) +
+    #ggtitle("2012 Field Offices") +
+   # theme_void()
 
-field_2016 <- ggplot() +
-    geom_sf(data = us_geo) + 
-    geom_sf(data = d_field_offices_transformed |> filter(year == 2016), aes(color = party), size = 3, alpha = 0.75, pch = 3) +
-    ggtitle("2016 Field Offices") +
-    theme_void()
+#field_2016 <- ggplot() +
+    #geom_sf(data = us_geo) + 
+    #geom_sf(data = d_field_offices_transformed |> filter(year == 2016), aes(color = party), size = 3, alpha = 0.75, pch = 3) +
+   # ggtitle("2016 Field Offices") +
+    #theme_void()
 ```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 # Map the field offices locations
-ggarrange(field_2012, field_2016)
+#ggarrange(field_2012, field_2016)
 
+# Add in output graph of field office locations
+knitr::include_graphics("field_office_locations.png")
 ```
 
 
