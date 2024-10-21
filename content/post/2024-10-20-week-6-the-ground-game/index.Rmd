@@ -120,7 +120,8 @@ trump_field_states <- count(trump_2016_states)
 #ggarrange(field_2012, field_2016)
 
 # Add in output graph of field office locations
-knitr::include_graphics("field_office_locations.png")
+knitr::include_graphics("field_office_locations.png")  
+
 ```
 
 The field office data also disputes the widely accepted conlusion that Hillary Clinton lost in 2016 due to her weak ground game in [Wisconsin and Michigan](https://www.businessinsider.com/why-clinton-lost-michigan-wisconsin-2016-11). Clinton had __40__ and __27__ field offices in Wisconsin and Michigan respectively compared to Trump's __13__ and __22__. Additionally, Trump had less offices in these swing states than Romney in 2012.
