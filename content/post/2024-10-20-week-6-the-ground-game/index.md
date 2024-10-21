@@ -1,21 +1,25 @@
 ---
 title: 'Week 7: The Ground Game'
-author: Chris Wright
-date: '2024-10-19'
-slug: week-6-the-ground-game
+author: "Chris Wright"
+date: "2024-10-19"
+output: pdf_document
 categories: []
 tags: []
+slug: "week-6-the-ground-game"
 ---
 
-
+After discussing the air game part of campaigns last week, I will spend time discussing the ground game this week. While the air game focuses on advertisements, the ground games focuses on human capital. Campaigns mobilize a large number of volunteers to canvass as part of their Get Out the Vote (GOTV) strategy. Similar to the air game, the ground game is focused less on persuading voters but instead on increasing turnout of likely voters.
 
 
 
 ## Field Offices
 
+The first part of the ground game I will analyze is the presence of field offices.
 
 
 
+
+<img src="field_office_locations.png" width="630" />
 
 
 ## Campaign Events
@@ -29,6 +33,7 @@ tags: []
 
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" />
+
 ## Electoral College Model
 
 

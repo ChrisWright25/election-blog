@@ -1,10 +1,11 @@
 ---
 title: 'Week 7: The Ground Game'
-author: Chris Wright
-date: '2024-10-19'
-slug: week-6-the-ground-game
+author: "Chris Wright"
+date: "2024-10-19"
+output: pdf_document
 categories: []
 tags: []
+slug: "week-6-the-ground-game"
 ---
 
 After discussing the air game part of campaigns last week, I will spend time discussing the ground game this week. While the air game focuses on advertisements, the ground games focuses on human capital. Campaigns mobilize a large number of volunteers to canvass as part of their Get Out the Vote (GOTV) strategy. Similar to the air game, the ground game is focused less on persuading voters but instead on increasing turnout of likely voters.
@@ -144,6 +145,10 @@ ggarrange(p.ev.1, p.ev.2, p.ev.3)
 d_campaign_events <- read_csv("campaign_events_geocoded.csv")
 d_campaign_events$party[d_campaign_events$candidate %in% c("Trump / Pence", "Trump", "Pence", "Trump/Pence", "Vance")] <- "REP"
 d_campaign_events$party[d_campaign_events$candidate %in% c("Biden / Harris", "Biden", "Harris", "Biden/Harris", "Walz", "Kaine", "Clinton", "Clinton / Kaine")] <- "DEM"
+
+us_geo <- states(cb = TRUE) |> 
+  shift_geometry() |> 
+  filter(STUSPS %in% unique(fo_add$state))
 
 d_ev_transformed <- st_as_sf(d_campaign_events |> drop_na(), coords = c("longitude", "latitude"), crs = 4326) |>
   st_transform(crs = st_crs(us_geo)) |>
