@@ -17,12 +17,13 @@ After discussing the air game part of campaigns last week, I will spend time dis
 
 ## Field Offices
 
-The first part of the ground game I will analyze is the presence of field offices. Field offices are physical locations that coordinate campaign activies in a locale and can be signs that a campaign views the region as important. In the two maps below, I have plotted the field office locations from the 2012 and 2016 elections. One important thing to note is that the typical party colors are flipped in the maps. One key takeaway from the maps is that Republicans tend to concentrate their offices in a few areas and Democrats spread out their offices including to areas they have little support like Montana and Alaska. In both elections, Democrats spent more resources on field offices as Obama had __791__ compared to Romney's __283__ and Clinton had __538__ compared to Trump's __165__.
+The first part of the ground game I will analyze is the presence of field offices. Field offices are physical locations that coordinate campaign activies in a locale and can be signs that a campaign views the region as important. In the two maps below, I have plotted the field office locations from the 2012 and 2016 elections. One important thing to note is that the typical party colors are flipped in the maps. One key takeaway from the maps is that Republicans tend to concentrate their offices in a few areas and Democrats spread out their offices including to areas they have little support like Montana and Alaska. In both elections, Democrats spent more resources on field offices as Obama had __791__ compared to Romney's __283__ and Clinton had __538__ compared to Trump's __165__.  
 
 
 
 
 <img src="field_office_locations.png" width="630" />
+
 The field office data also disputes the widely accepted conlusion that Hillary Clinton lost in 2016 due to her weak ground game in [Wisconsin and Michigan](https://www.businessinsider.com/why-clinton-lost-michigan-wisconsin-2016-11). Clinton had __40__ and __27__ field offices in Wisconsin and Michigan respectively compared to Trump's __13__ and __22__. Additionally, Trump had less offices in these swing states than Romney in 2012.
 
 Although it is difficult to find complete data on the state of field offices in the 2024 election, it appears hat Democrats will once again have the advantage as [PBS reported in early September](https://www.pbs.org/newshour/politics/harris-and-trump-campaigns-prepare-for-intense-sprint-to-election-day) that Harris had __300__ field offices in swing states while Trump had __100__ offices.
@@ -70,20 +71,11 @@ The prediction model is relatively simple. The model uses historical polling in 
 The individual state models predict a close election with Kamala Harris winning __Michigan, Wisconsin, Pennsylvania__ and Trump winning __Arizona, Georgia, Nevada, North Carolina__. This would result in Harris winning the Electoral College with exactly __270__ votes.
 
 
-``` r
-# Map for final prediction
-prediction_data_final <- data.frame(state = c("AL","AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI" , "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD","MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC","SD", "TN","TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"), value = c(0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0))
 
-
-plot_usmap(region = "states", 
-           data = prediction_data_final,
-           values = "value",
-           color = "white") + scale_fill_gradient(low = "firebrick", high = "steelblue1")
-```
-
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-11-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-12-1.png" width="672" />
 
 Listed below are the predicted two-party vote shares from the state models.
+
 
 State | Harris Predicted Two-Party Vote | Trump Predicted Two-Party Vote
 ------------- | ------------- | -------------
