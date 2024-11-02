@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=4321&amp;path=livereload" data-no-instant defer></script>
+  <head><script src="/election-blog/livereload.js?mindelay=10&amp;v=2&amp;port=7619&amp;path=election-blog/livereload" data-no-instant defer></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Polling | Chris Wright&#39;s Election Blog</title>
-    <link rel="stylesheet" href="/css/style.css" />
-    <link rel="stylesheet" href="/css/fonts.css" />
+    <link rel="stylesheet" href="/election-blog/css/style.css" />
+    <link rel="stylesheet" href="/election-blog/css/fonts.css" />
     
   </head>
 
@@ -13,7 +13,7 @@
     <nav>
     <ul class="menu">
       
-      <li><a href="/">Home</a></li>
+      <li><a href="/election-blog/">Home</a></li>
       
     </ul>
     <hr/>
@@ -87,7 +87,7 @@
 </table>
 <p>Additionally, in an attempt to see accuracy over time, I plotted the average poll prediction for Democratic candidates. The dotted line represents the actual election outcome. Although the C polls have more range, they seem to get closer to the actual prediction as the election date is closer</p>
 <p>Note: The dotted line is a sum of the 2016 and 2020 election since the dataset covers the 2016 and 2020 elections</p>
-<img src="/post/2024/09/20/polling/index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+<img src="/election-blog/post/2024/09/20/polling/index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
 <h2 id="predicting-based-on-the-ratings">Predicting Based on the Ratings</h2>
 <p>Lastly, I used the A, B, and C polls to predict the 2024 election to see if there is any difference in the predictions. Before fitting the model, I subset it to only predictions for the Democratic party. Then I fit the model using the projected Democratic vote share and the actual election outcome in either 2016 or 2020. Lastly, I used 2024 polling data to predict based on the model. In future analysis, I would include older polls to have more data points; however, I was unable to find older polling data with the associated 538 pollster ratings.</p>
 <table>

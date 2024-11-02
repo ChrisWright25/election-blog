@@ -17,7 +17,6 @@ library(ggpubr)
 
 
 hurricanes <- read.csv("hurricanes_1996_2016.csv")
-protest <- read.csv("protests.csv")
 supreme_congress <- read.csv("supreme_court_congressional_review.csv")
 supreme_precedents <- read.csv("supreme_court_precedents.csv")
 turnout <- read.csv("state_turnout_1980_2022.csv")
