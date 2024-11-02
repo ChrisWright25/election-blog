@@ -1,0 +1,323 @@
+---
+title: 'Week 8: Unexpected Shocks'
+author: 'Chris Wright '
+date: '2024-11-02'
+slug: week-8-unexpected-shocks
+categories: []
+tags: []
+---
+
+This week, the focus is on unexpected events and shocks. These are events that are out of the control of the candidate but still have an effect on the election outcome. Since these events do not happen systematically, they are difficult to model and predict their impact. Quantitatively, the academic literature is split on the impact of "October Surprises". [Achen and Bartels](https://muse-jhu-edu.ezp-prod1.hul.harvard.edu/book/64646) famously unearthed a connection between shark attacks and the vote-share of the then incumbent Woodrow Wilson in the 1916 election. However, [Fowler and Hall's](https://www-journals-uchicago-edu.ezp-prod1.hul.harvard.edu/doi/full/10.1086/699244) research finds little connection between the two when more shark attacks are considered.
+
+Unexpected events have also shaped recent elections including the Access Hollywood tapes and the [Comey Letter](https://fivethirtyeight.com/features/the-comey-letter-probably-cost-clinton-the-election/)) which was released days before the 2016 election. In the 2024 election, some unexpected events include the assassination attempts on Trump and recent hurricanes Helene and Milton. To analyze unexpected events and see what effect they will have on the 2024 election, this blog post will look into data on hurricanes and abortion.  
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(usmap)
+library(tidyverse)
+library(ggpubr)
+
+
+hurricanes <- read.csv("hurricanes_1996_2016.csv")
+protest <- read.csv("protests.csv")
+supreme_congress <- read.csv("supreme_court_congressional_review.csv")
+supreme_precedents <- read.csv("supreme_court_precedents.csv")
+turnout <- read.csv("state_turnout_1980_2022.csv")
+turnout$vep_turnout <- as.numeric(sub("%", "", turnout$vep_turnout))
+
+d_state_popvote <- read.csv("state_popvote_1948_2020.csv")
+d_state_polls <- read.csv("state_polls_1968-2024.csv")
+fred <- read.csv("fred_econ.csv")
+```
+
+## Hurricanes
+
+On the surface natural disasters like hurricanes can influence an election as they can diminish locals faith and trust in government thus hurting the incumbent. Natural disasters can also lower turnout in places directly impacted. However, what does the data say?
+
+The chart below shows the prevalence of hurricanes leading up to the election. The data is subsetted to only include presidential election years since 1996. Interestingly, the graph shows that relatively few hurricanes happen in October. If you believe in a voter behavior model where recent events have the most impact, then this coudl be seen as reducing the effect of hurricanes on elections. However, the damage from hurricanes could be long-lasting.
+
+```{r echo=FALSE, warning=FALSE}
+# Hurricanes
+
+election_hurricanes <- hurricanes |>
+  group_by(STATE) |> filter(YEAR == 1996 | YEAR == 2000 | YEAR == 2004 | YEAR == 2008 | YEAR == 2012 | YEAR == 2016)
+election_hurricanes_count <- election_hurricanes |> filter(n() > 20)
+
+ggplot(data = election_hurricanes, aes(x = MONTH_NAME)) + geom_bar() + xlab("Month") + ylab("# of Hurricanes")
+
+```
+
+
+Since the effect of hurricanes on elections is probably localized, I subset the data by states and included states with 20 or more hurricanes in an election year. The chart below shows the six states that meet the threshold and includes the count per year. For most states, 2004 was a year that saw many hurricanes, so 2004 could be a useful year to look at to determine the effect of hurricanes. Additionally, the year 1996 saw a large amount of hurricanes in North Carolina. The outcomes in 1996 could be helpful to understanding the 2024 election as North Carolina is still dealing with the effects of Hurricane Milton.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(data = election_hurricanes_count, aes(x = STATE, fill = as_factor(YEAR))) + geom_bar(position = "dodge") + theme(axis.text.x = element_text(size = 5)) + labs(fill="Election Year") + ylab("# of Hurricanes")
+
+turnout_hurricane <- turnout |> group_by(state) |> filter(state == "Florida" | state == "Louisiana" | state == "Mississippi" | state == "North Carolina" | state == "South Carolina" | state == "Texas") |> filter(year >= 1992)
+
+turnout_hurricane_florida <- turnout |> group_by(state) |> filter(state == "Florida") |> filter(year >= 1992)
+turnout_hurricane_louisiana <- turnout |> group_by(state) |> filter(state == "Louisiana") |> filter(year >= 1992)
+turnout_hurricane_mississippi <- turnout |> group_by(state) |> filter(state == "Mississippi") |> filter(year >= 1992)
+turnout_hurricane_north_carolina <- turnout |> group_by(state) |> filter(state == "North Carolina") |> filter(year >= 1992)
+turnout_hurricane_south_carolina <- turnout |> group_by(state) |> filter(state == "South Carolina") |> filter(year >= 1992)
+turnout_hurricane_texas <- turnout |> group_by(state) |> filter(state == "Texas") |> filter(year >= 1992)
+
+plot_florida <- ggplot(data = turnout_hurricane_florida, aes(x = year, y = vep_turnout, group = state)) + geom_line() + ylab("Florida Turnout")
+plot_louisiana <- ggplot(data = turnout_hurricane_louisiana, aes(x = year, y = vep_turnout, group = state)) + geom_line() + ylab("Louisiana Turnout")
+plot_mississippi <- ggplot(data = turnout_hurricane_mississippi, aes(x = year, y = vep_turnout, group = state)) + geom_line() + ylab("Mississippi Turnout")
+plot_north_carolina <- ggplot(data = turnout_hurricane_north_carolina, aes(x = year, y = vep_turnout, group = state)) + geom_line() + ylab("North Carolina Turnout")
+plot_south_carolina <- ggplot(data = turnout_hurricane_south_carolina, aes(x = year, y = vep_turnout, group = state)) + geom_line() + ylab("South Carolina Turnout")
+plot_texas <- ggplot(data = turnout_hurricane_texas, aes(x = year, y = vep_turnout, group = state)) + geom_line() + ylab("Texas Turnout")
+
+plot_list_one <- list(plot_florida, plot_louisiana, plot_mississippi, plot_north_carolina, plot_south_carolina, plot_texas)
+
+hurricane_turnout_plots <- ggarrange(plotlist = plot_list_one)
+
+```
+
+
+To try to tease out the effect of hurricanes, I plotted VEP turnout in the six states with the most election year hurricanes. The line charts below don't tell much of a story either way as turnout data is missing for some states. However, the Florida and Louisiana charts show that turnout in the 2004 Presidential election increased from the 2000 Presidential Election. Since 2004 was a year with many hurricanes, the increased turnout could be a reflection of hurricanes impacting the election.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+annotate_figure(hurricane_turnout_plots, top = text_grob("State Turnout in Election Years 1992-Present", color = "black", face = "bold", size = 14))
+```
+
+## Supreme Court and Ballot Measures
+
+Another unexpected event that can shake up elections are Supreme Court decisions. One of the most recent court cases with the biggest impact is the reversal of Roe v. Wade in the Dobbs v. Jackson decision. In response to the decision, many states voted on ballot measures in the 2022 midterms to determine the state of abortion care. One way of seeing the impact of the Supreme Court's decision is to analyze turnout in the 2022 midterms compared to previous midterms.
+
+The charts below do exactly this. The states selected are the [five states that had abortion on the ballot in the 2022 midterm cycle](https://ballotpedia.org/2022_abortion-related_ballot_measures). Interestingly, the turnout in every state dropped from the 2018 midterms to the 2022 cycle. However, in most states the turnout was also some of the highest since the start of the 21st century. The decline from 2018 to 2022 could be partially explained by the Covid pandmeic as it was still prevalent. Further research on demographics in the 2022 midterms could potentially unearth the effects of landmark Supreme court cases.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Abortion
+
+turnout_abortion_california <- turnout |> group_by(state) |> filter(state == "California") |> filter(year == 2022 | year == 2018 | year == 2014 | year == 2010 | year == 2006 | year == 2002)
+turnout_abortion_kentucky <- turnout |> group_by(state) |> filter(state == "Kentucky") |> filter(year == 2022 | year == 2018 | year == 2014 | year == 2010 | year == 2006 | year == 2002)
+turnout_abortion_michigan <- turnout |> group_by(state) |> filter(state == "Michigan") |> filter(year == 2022 | year == 2018 | year == 2014 | year == 2010 | year == 2006 | year == 2002)
+turnout_abortion_montana <- turnout |> group_by(state) |> filter(state == "Montana") |> filter(year == 2022 | year == 2018 | year == 2014 | year == 2010 | year == 2006 | year == 2002)
+turnout_abortion_vermont <- turnout |> group_by(state) |> filter(state == "Vermont") |> filter(year == 2022 | year == 2018 | year == 2014 | year == 2010 | year == 2006 | year == 2002)
+
+plot_california <- ggplot(data = turnout_abortion_california, aes(x = year, y = vep_turnout, group = state)) + geom_line() + ylab("California Turnout") + theme(axis.text = element_text(size = 5))
+plot_kentucky <- ggplot(data = turnout_abortion_kentucky, aes(x = year, y = vep_turnout, group = state)) + geom_line() + ylab("Kentucky Turnout")
+plot_michigan <- ggplot(data = turnout_abortion_california, aes(x = year, y = vep_turnout, group = state)) + geom_line() + ylab("Michigan Turnout")
+plot_montana <- ggplot(data = turnout_abortion_california, aes(x = year, y = vep_turnout, group = state)) + geom_line() + ylab("Montana Turnout")
+plot_vermont <- ggplot(data = turnout_abortion_california, aes(x = year, y = vep_turnout, group = state)) + geom_line() + ylab("Vermont Turnout")
+
+plot_list_two <- list(plot_california, plot_kentucky, plot_michigan, plot_montana, plot_vermont)
+
+abortion_turnout <- ggarrange(plotlist = plot_list_two)
+
+annotate_figure(abortion_turnout, top = text_grob("State Turnout in Midterms 2002-Present", 
+               color = "black", face = "bold", size = 14))
+
+```
+
+
+
+
+## Electoral College Prediction
+
+Once again, I am predicting the Electoral College by creating models for the swing states below
+```{r message=FALSE, warning=FALSE, include=FALSE}
+
+prediction_data <- data.frame(state = c("AL","AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI" , "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD","MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC","SD", "TN","TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"), value = c(0, 0, NA, 0, 1, 1, 1, 1, 0, NA, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, NA, 1, 0, 0, 1, 0, NA, 1, 1, 1, 1, NA, 0, 0, 0, 1, NA, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, NA, 0))
+
+```
+
+```{r echo=FALSE}
+plot_usmap(region = "states", 
+           data = prediction_data,
+           values = "value",
+           color = "white") + scale_fill_gradient(low = "firebrick", high = "steelblue1", na.value = "purple")
+
+```
+
+
+
+The prediction model combines polling data and fundamental economic data. The model uses historical polling in each state to predict based on the 2024 polling averages. The model also uses GDP quarter two growth and inflation (CPI). For the final prediction the model weighs polling data 3/4 and fundamental economic data 1/4 due to polling data being more in tune with 2024 events.
+
+```{r include=FALSE}
+#Arizona Model
+arizona_data <- d_state_popvote |> 
+  filter(state == "Arizona") |> 
+  select(year, D_pv2p) |> 
+  left_join(d_state_polls |> filter(state == "Arizona" & party == "DEM")) |>
+  left_join(fred |> filter(quarter == 2))
+
+arizona_poll_lm <- lm(data = arizona_data, D_pv2p ~ poll_support)
+arizona_econ_lm <- lm(data = arizona_data, D_pv2p ~ GDP_growth_quarterly, CPI)
+
+arizona_2024_polls <- d_state_polls |>
+  filter(state == "Arizona" & year == 2024)
+
+arizona_2024_econ <- fred |>
+  filter(quarter == 2 & year == 2024)
+
+arizona_poll_prediction <- mean(predict(arizona_poll_lm, arizona_2024_polls))
+arizona_econ_prediction <- predict(arizona_econ_lm, arizona_2024_econ)
+
+arizona_prediction <- (arizona_poll_prediction * 3/4 + arizona_econ_prediction * 1/4)
+
+#Georgia Model
+georgia_data <- d_state_popvote |> 
+  filter(state == "Georgia") |> 
+  select(year, D_pv2p) |> 
+  left_join(d_state_polls |> filter(state == "Georgia" & party == "DEM")) |>
+  left_join(fred |> filter(quarter == 2))
+
+georgia_poll_lm <- lm(data = georgia_data, D_pv2p ~ poll_support)
+georgia_econ_lm <- lm(data = georgia_data, D_pv2p ~ GDP_growth_quarterly, CPI)
+
+georgia_2024_polls <- d_state_polls |>
+  filter(state == "Georgia" & year == 2024)
+
+georgia_2024_econ <- fred |>
+  filter(quarter == 2 & year == 2024)
+
+georgia_poll_prediction <- mean(predict(georgia_poll_lm, georgia_2024_polls))
+georgia_econ_prediction <- predict(georgia_econ_lm, georgia_2024_econ)
+
+georgia_prediction <- (georgia_poll_prediction * 3/4 + georgia_econ_prediction * 1/4)
+
+
+#Nevada Model
+nevada_data <- d_state_popvote |> 
+  filter(state == "Nevada") |> 
+  select(year, D_pv2p) |> 
+  left_join(d_state_polls |> filter(state == "Nevada" & party == "DEM")) |>
+  left_join(fred |> filter(quarter == 2))
+
+nevada_poll_lm <- lm(data = nevada_data, D_pv2p ~ poll_support)
+nevada_econ_lm <- lm(data = nevada_data, D_pv2p ~ GDP_growth_quarterly, CPI)
+
+nevada_2024_polls <- d_state_polls |>
+  filter(state == "Nevada" & year == 2024)
+
+nevada_2024_econ <- fred |>
+  filter(quarter == 2 & year == 2024)
+
+nevada_poll_prediction <- mean(predict(nevada_poll_lm, nevada_2024_polls))
+nevada_econ_prediction <- predict(nevada_econ_lm, nevada_2024_econ)
+
+nevada_prediction <- (nevada_poll_prediction * 3/4 + nevada_econ_prediction * 1/4)
+
+#North Carolina Model
+north_carolina_data <- d_state_popvote |> 
+  filter(state == "North Carolina") |> 
+  select(year, D_pv2p) |> 
+  left_join(d_state_polls |> filter(state == "North Carolina" & party == "DEM")) |>
+  left_join(fred |> filter(quarter == 2))
+
+north_carolina_poll_lm <- lm(data = north_carolina_data, D_pv2p ~ poll_support)
+north_carolina_econ_lm <- lm(data = north_carolina_data, D_pv2p ~ GDP_growth_quarterly, CPI)
+
+north_carolina_2024_polls <- d_state_polls |>
+  filter(state == "North Carolina" & year == 2024)
+
+north_carolina_2024_econ <- fred |>
+  filter(quarter == 2 & year == 2024)
+
+north_carolina_poll_prediction <- mean(predict(north_carolina_poll_lm, north_carolina_2024_polls))
+north_carolina_econ_prediction <- predict(north_carolina_econ_lm, north_carolina_2024_econ)
+
+north_carolina_prediction <- (north_carolina_poll_prediction * 3/4 + north_carolina_econ_prediction * 1/4)
+
+#Michigan Model
+michigan_data <- d_state_popvote |> 
+  filter(state == "Michigan") |> 
+  select(year, D_pv2p) |> 
+  left_join(d_state_polls |> filter(state == "Michigan" & party == "DEM")) |>
+  left_join(fred |> filter(quarter == 2))
+
+michigan_poll_lm <- lm(data = michigan_data, D_pv2p ~ poll_support)
+michigan_econ_lm <- lm(data = michigan_data, D_pv2p ~ GDP_growth_quarterly, CPI)
+
+michigan_2024_polls <- d_state_polls |>
+  filter(state == "Michigan" & year == 2024)
+
+michigan_2024_econ <- fred |>
+  filter(quarter == 2 & year == 2024)
+
+michigan_poll_prediction <- mean(predict(michigan_poll_lm, michigan_2024_polls))
+michigan_econ_prediction <- predict(michigan_econ_lm, michigan_2024_econ)
+
+michigan_prediction <- (michigan_poll_prediction * 3/4 + michigan_econ_prediction * 1/4)
+
+#Pennsylvania Model
+
+pennsylvania_data <- d_state_popvote |> 
+  filter(state == "Pennsylvania") |> 
+  select(year, D_pv2p) |> 
+  left_join(d_state_polls |> filter(state == "Pennsylvania" & party == "DEM")) |>
+  left_join(fred |> filter(quarter == 2))
+
+pennsylvania_poll_lm <- lm(data = pennsylvania_data, D_pv2p ~ poll_support)
+pennsylvania_econ_lm <- lm(data = pennsylvania_data, D_pv2p ~ GDP_growth_quarterly, CPI)
+
+pennsylvania_2024_polls <- d_state_polls |>
+  filter(state == "Pennsylvania" & year == 2024)
+
+pennsylvania_2024_econ <- fred |>
+  filter(quarter == 2 & year == 2024)
+
+pennsylvania_poll_prediction <- mean(predict(pennsylvania_poll_lm, pennsylvania_2024_polls))
+pennsylvania_econ_prediction <- predict(pennsylvania_econ_lm, pennsylvania_2024_econ)
+
+pennsylvania_prediction <- (pennsylvania_poll_prediction * 3/4 + pennsylvania_econ_prediction * 1/4)
+
+#Wisconsin Model
+
+wisconsin_data <- d_state_popvote |> 
+  filter(state == "Wisconsin") |> 
+  select(year, D_pv2p) |> 
+  left_join(d_state_polls |> filter(state == "Wisconsin" & party == "DEM")) |>
+  left_join(fred |> filter(quarter == 2))
+
+wisconsin_poll_lm <- lm(data = wisconsin_data, D_pv2p ~ poll_support)
+wisconsin_econ_lm <- lm(data = wisconsin_data, D_pv2p ~ GDP_growth_quarterly, CPI)
+
+wisconsin_2024_polls <- d_state_polls |>
+  filter(state == "Wisconsin" & year == 2024)
+
+wisconsin_2024_econ <- fred |>
+  filter(quarter == 2 & year == 2024)
+
+wisconsin_poll_prediction <- mean(predict(wisconsin_poll_lm, wisconsin_2024_polls))
+wisconsin_econ_prediction <- predict(wisconsin_econ_lm, wisconsin_2024_econ)
+
+wisconsin_prediction <- (wisconsin_poll_prediction * 3/4 + wisconsin_econ_prediction * 1/4)
+
+
+```
+
+
+
+
+The individual state models predict a close election with Kamala Harris winning __Michigan, Wisconsin, Pennsylvania__ and Trump winning __Arizona, Georgia, Nevada, North Carolina__. This would result in Harris winning the Electoral College with exactly __270__ votes.
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+# Map for final prediction
+prediction_data_final <- data.frame(state = c("AL","AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI" , "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD","MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC","SD", "TN","TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"), value = c(0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0))
+
+```
+
+```{r echo=FALSE}
+plot_usmap(region = "states", 
+           data = prediction_data_final,
+           values = "value",
+           color = "white") + scale_fill_gradient(low = "firebrick", high = "steelblue1")
+
+
+```
+
+Listed below are the predicted two-party vote shares from the state models.
+
+
+State | Harris Predicted Two-Party Vote | Trump Predicted Two-Party Vote
+------------- | ------------- | -------------
+Arizona | 44.6% | 55.4%
+Georgia | 49.2% | 50.8%
+Michigan | 50.9% | 49.1%
+Nevada | 47.0% | 53.0%
+North Carolina | 45.7% | 54.3%
+Pennsylvania | 53.0% | 47.0%
+Wisconsin | 51.8% | 48.2%
