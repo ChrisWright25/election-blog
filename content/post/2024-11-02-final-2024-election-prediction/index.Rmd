@@ -13,9 +13,14 @@ With the election days away, it is time to make my final prediction for the 2024
 
 The first prediction I will explore is the National Prediction. This prediction will predict the Two-Party Vote Share for both Kamala Harris and Donald Trump
 
-### Model Description and Formula
+### Fundamental Model Description, Justification, and Formula
 
-The final model is an ensemble of two models. The first model is a "fundamental" model. The first model utilizes data from the 
+The final model is an ensemble of two models. Due to the large impact that the data from the 2020 election has on prediction models. I made two models, one with the 2020 data and one without it.
+
+
+The first model is a "fundamental" model using a simple OLS regression. The first model utilizes economic data from the [Federal Reserve FRED database](https://fred.stlouisfed.org/). The economic inputs to the model are from the second quarter of election years. The inputs are GDP quarterly growth, Consumer Price Index (inflation), homeowner vacancy, rental vacancy, and volatility of the stock market (difference between high and low in the quarter). GDP quarterly growth and the volatility of the stock market are incldued in the model to get a general sense of the state of the economy. The rest of the economic variables are inlcuded due to their relevance in the 2024 election. Homeowner vacancy and rnetal vacancy are designed to capture the effects that the [housing crisis](https://www.bloomberg.com/news/articles/2024-09-12/homebuyers-hit-by-price-surge-supply-crunch-rock-2024-election) will have on the election. Despite recent improvement, inflation is included in the model as it [remains important to voters](https://www.washingtonpost.com/business/2024/10/31/economy-election-inflation-voters/).  
+
+Below is the summary statistics for the two regression. The left column represents the model with 2020 data included. The right side is without 2020 included. The statistics show that the right side model's GDP growth is more significant than the left. Additionally, the R^2 on the right side model is higher suggesting that it better explains the variance in the data. Notably though most coefficents are not significant.
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
@@ -175,7 +180,7 @@ lambda.min.enet.poll2 <- enet.poll2$lambda.min
 poll.predict2 <- (predict(enet.poll2, s = lambda.min.enet.poll2, newx = x.test))
 
 #MSE
-mse_excluded_data <- mean((mean(x.test) - poll.predict)^2)
+mse_excluded_data <- mean((mean(x.test) - poll.predict2)^2)
 
 
 # Ensemble Prediction
@@ -190,6 +195,25 @@ stargazer(fund_model, fund_model_2, type = "text")
 
 ```
 
+While the right side model performs better in-sample, the left side model performs better out of sample. Calculating mean error after running 1000 simulations of cross-validation, the left side all data model had mean error of __6.65__ while the right side model had a mean error of __9.98__.
+
+
+### Polling Model Description, Justification, and Formula
+
+The second model for the ensemble is based off polling data. The polling data used within the model is the averages from 538. Similar to the fundamental model, I also created two polling models. The first inlcudes all data and the second removes the 2020 and 2016 elections due to perceived polling misses. The two models where created using elastic-net to create a model that considers each polling average from 30 weeks out from the election until now.
+
+The model with all data included performed better out of sample as it had a mean squared error of __57.1__ compared to the second model's mean squared error of __91.4__.
+
+In both the fundamental and polling models, the prediction intervals were extremely wide and crossed over the 50% vote threshold
+
+
+### Ensembling and Final Prediction
+
+Below are the final prediction for the two models. In both models, the fundamental model is weighted to be 2/3 of the prediction compared to 1/3 of the prediction for the polling model. This decision was made to the higher R^2 for the fundamental model and the perceived inaccuracy of polling in recent years.
+
+Overall, I believe more in the all data model because elections happen so rarely that more data is better. Additionally, the all data model for both the fundamental and polling models performed better out of sample.
+
+
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 national_predictions <- data.frame(Candidate = c("Kamala Harris", "Kamala Harris", "Donald Trump", "Donald Trump"), model = c("All Data", "Outliers Excluded", "All Data", "Outliers Excluded"), prediction = c(53.4, 48.4, 46.6, 51.6))
@@ -201,6 +225,9 @@ national_plot + theme(panel.background = element_blank())
 
 
 ## State Prediction
+
+For the state prediction, I decided to only create models for the state that were tossusps. To determine which states were tossups, I used the race ratings from [Cook Politcal Report](https://www.cookpolitical.com/ratings/presidential-race-ratings). The seven tossup states are highlighted below in purple on the map
+
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 
@@ -217,8 +244,9 @@ plot_usmap(region = "states",
 ```
 
 
+### Model Description, Justification, and Formula
 
-The prediction model combines polling data and fundamental economic data. The model uses historical polling in each state to predict based on the 2024 polling averages. The model also uses GDP quarter two growth and inflation (CPI). For the final prediction the model weighs polling data 3/4 and fundamental economic data 1/4 due to polling data being more in tune with 2024 events.
+Similar to the national model, the state prediction models combine polling data and fundamental economic data. The model uses historical polling in each state to predict based on the 2024 polling averages. The model also uses national GDP quarter two growth and inflation (CPI). For the final prediction the model weighs polling data 2/3 and fundamental economic data 1/3 due to polling data being more in tune with interesting shocks in 2024. If I were using state level economic data, I would consider giving it a higher weight.
 
 ```{r include=FALSE}
 d_state_popvote <- read.csv("state_popvote_1948_2020 copy.csv")
@@ -585,6 +613,11 @@ wis_poll_out <- mean(abs(out_samp_errors_wis_poll), na.rm = TRUE)
 
 ```
 
+#### In Sample Results of the Fundamental State Models
+
+Below are the in-sample results of the fundamental state models. The columns are in alphabetical order from Arizona to Wisconsin. In all of the models, the economic variables are very significant. However, the R^2 is on the lower side in most states except North Carolina.
+
+
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 
 stargazer(arizona_econ_lm, georgia_econ_lm, michigan_econ_lm, type = "text")
@@ -593,6 +626,23 @@ stargazer(wisconsin_econ_lm, type = "text")
 ```
 
 
+#### Out of Sample Results of the Fundamental State Models
+
+State | Out of Sample Error
+------------- | -------------
+Arizona | 4.49
+Georgia | 3.74
+Michigan | 2.92 
+Nevada | 3.91
+North Carolina | 4.16
+Pennsylvania | 2.91
+Wisconsin | 2.76
+
+
+
+#### In Sample Results of the Polling State Models
+
+Below are the in-sample results of the polling state models. The columns are in alphabetical order from Arizona to Wisconsin. In all of the models, the poll support is very significant. However, the R^2 is  extremely low in most states except Nevada.
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 
 stargazer(arizona_poll_lm, georgia_poll_lm, michigan_poll_lm, type = "text")
@@ -600,7 +650,20 @@ stargazer(nevada_poll_lm, north_carolina_poll_lm, pennsylvania_poll_lm, type = "
 stargazer(wisconsin_poll_lm, type = "text")
 ```
 
+#### Out of Sample Results of the Polling State Models
 
+State | Out of Sample Error
+------------- | -------------
+Arizona | 2.49
+Georgia | 2.26
+Michigan | 2.29 
+Nevada | 2.78
+North Carolina | 1.88
+Pennsylvania | 1.91
+Wisconsin | 1.73
+
+
+Below are the prediction intervals of the state models. North Carolina and Arizona stand out as their prediction intervals cross the 50% vote threshold. Additionally, North Carolina has the largest interval out of all the state models.
 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
@@ -627,7 +690,7 @@ abline(h = 50, lty = 2)
 ```
 
 
-
+## Final Electoral College Prediction
 
 The individual state models predict a close election with Kamala Harris winning __Michigan, Wisconsin, Pennsylvania__ and Trump winning __Arizona, Georgia, Nevada, North Carolina__. This would result in Harris winning the Electoral College with exactly __270__ votes.
 
