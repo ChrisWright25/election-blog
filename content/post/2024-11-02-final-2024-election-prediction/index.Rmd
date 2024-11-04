@@ -1,0 +1,666 @@
+---
+title: Final 2024 Election Prediction
+author: 'Chris Wright '
+date: '2024-11-02'
+slug: final-2024-election-prediction
+categories: []
+tags: []
+---
+
+With the election days away, it is time to make my final prediction for the 2024 US Presidential Election. In the past weeks, I have alternated between Electoral College predictions and National Popular Vote predictions. For the final prediction blog post, I will predict both of these using the methods and data I have explored in previous posts. 
+
+## National Prediction
+
+The first prediction I will explore is the National Prediction. This prediction will predict the Two-Party Vote Share for both Kamala Harris and Donald Trump
+
+### Model Description and Formula
+
+The final model is an ensemble of two models. The first model is a "fundamental" model. The first model utilizes data from the 
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+# Load Packages
+library(car)
+library(caret)
+library(CVXR)
+library(foreign)
+library(glmnet)
+library(haven)
+library(janitor)
+library(kableExtra)
+library(maps)
+library(mlr3)
+library(randomForest)
+library(ranger)
+library(RColorBrewer)
+library(sf)
+library(tidyverse)
+library(viridis)
+library(usmap)
+library(ggpubr)
+library(r02pro)
+library(stargazer)
+```
+
+
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+d_popvote <- read_csv("popvote_1948_2020 copy.csv")
+fred <- read_csv("fred_econ copy 2.csv")
+fred$sp500move <- fred$sp500_high - fred$sp500_low
+fred_housing <- read_csv("fred_housing copy.csv")
+
+fundamentals <- d_popvote |> 
+  filter(incumbent_party == TRUE) |> 
+  select(year, pv, pv2p, winner) |> 
+  left_join(fred |> filter(quarter == 2)) |> 
+  left_join(fred_housing |> filter(quarter == 2))
+
+
+# Training set with 2020
+fund_train <- fundamentals |> 
+  filter(year < 2024 & year > 1952)
+# Training set without 2020
+fund_train_2 <- fundamentals |> 
+  filter(year < 2024 & year > 1952 & year != 2020)
+fund_test <- fundamentals |> 
+  filter(year == 2024)
+
+# With 2020
+fund_model <- lm(pv2p ~ GDP_growth_quarterly + sp500move + CPI + homeowner_vacancy + rental_vacancy, data = fund_train)
+summary(fund_model)
+
+fund.predict <- predict(fund_model, fund_test)
+
+# Out of Sample Error (Fundamental w/ 2020)
+
+out_samp_errors_fund1 <- sapply(1:1000, function(i) {
+  years_out_samp_fund1 <- sample(fund_train$year, 9) 
+  mod_fund1 <- lm(pv2p ~ GDP_growth_quarterly + sp500move + CPI + homeowner_vacancy + rental_vacancy,
+            fund_train[!(fund_train$year %in% years_out_samp_fund1),])
+  out_samp_pred_fund1 <- predict(mod_fund1, fund_train[fund_train$year %in% years_out_samp_fund1,])
+  out_samp_truth_fund1 <- fund_train$pv2p[fund_train$year %in% years_out_samp_fund1]
+  mean(out_samp_pred_fund1 - out_samp_truth_fund1)
+})
+
+fund1_out <- mean(abs(out_samp_errors_fund1), na.rm = TRUE)
+
+# Without 2020
+fund_model_2 <- lm(pv2p ~ GDP_growth_quarterly + sp500move + CPI + homeowner_vacancy + rental_vacancy, data = fund_train_2)
+summary(fund_model_2)
+
+fund2.predict <- predict(fund_model_2, fund_test)
+
+# Out of Sample Error (Fundamental w/o 2020)
+
+out_samp_errors_fund2 <- sapply(1:1000, function(i) {
+  years_out_samp_fund2 <- sample(fund_train_2$year, 9) 
+  mod_fund2 <- lm(pv2p ~ GDP_growth_quarterly + sp500move + CPI + homeowner_vacancy + rental_vacancy,
+            fund_train_2[!(fund_train_2$year %in% years_out_samp_fund2),])
+  out_samp_pred_fund2 <- predict(mod_fund2, fund_train_2[fund_train_2$year %in% years_out_samp_fund2,])
+  out_samp_truth_fund2 <- fund_train_2$pv2p[fund_train_2$year %in% years_out_samp_fund2]
+  mean(out_samp_pred_fund2 - out_samp_truth_fund2)
+})
+
+fund2_out <- mean(abs(out_samp_errors_fund2), na.rm = TRUE)
+
+# Polling Data Based Prediction
+
+polling <- read_csv("national_polls_1968-2024.csv")
+
+# Adjust popular vote dataset for merging
+d_popvote$party[d_popvote$party == "democrat"] <- "DEM"
+d_popvote$party[d_popvote$party == "republican"] <- "REP"
+
+# Create dataset of polling average by week until the election. 
+d_poll_weeks <- polling |> 
+  group_by(year, party, weeks_left) |>
+  summarize(mean_poll_week = mean(poll_support)) |> 
+  filter(weeks_left <= 30 & party == "DEM") |> 
+  pivot_wider(names_from = weeks_left, values_from = mean_poll_week) |> 
+  left_join(d_popvote, by = c("year", "party"))
+ 
+# Split into training and testing data based on inclusion or exclusion of 2024. 
+d_poll_weeks_train <- d_poll_weeks |> 
+  filter(year <= 2020)
+d_poll_weeks_test <- d_poll_weeks |> 
+  filter(year == 2024)
+
+# Extra training set without 2016 and 2020 (Removing years that the polling "went wrong")
+d_poll_weeks_train2 <- d_poll_weeks |> 
+  filter(year <= 2012)
+
+colnames(d_poll_weeks)[3:33] <- paste0("poll_weeks_left_", 0:30)
+colnames(d_poll_weeks_train)[3:33] <- paste0("poll_weeks_left_", 0:30)
+colnames(d_poll_weeks_train2)[3:33] <- paste0("poll_weeks_left_", 0:30)
+colnames(d_poll_weeks_test)[3:33] <- paste0("poll_weeks_left_", 0:30)
+
+# Normal training and testing
+x.train <- d_poll_weeks_train |>
+  ungroup() |> 
+  select(all_of(paste0("poll_weeks_left_", 0:30))) |> 
+  as.matrix()
+y.train <- d_poll_weeks_train$pv2p
+x.test <- d_poll_weeks_test |>
+  ungroup() |> 
+  select(all_of(paste0("poll_weeks_left_", 0:30))) |> 
+  as.matrix()
+
+# Training without 2016 and 2020
+x.train2 <- d_poll_weeks_train2 |>
+  ungroup() |> 
+  select(all_of(paste0("poll_weeks_left_", 0:30))) |> 
+  as.matrix()
+y.train2 <- d_poll_weeks_train2$pv2p
+
+# Using elastic-net for normal poll predictions
+set.seed(02138)
+enet.poll <- cv.glmnet(x = x.train, y = y.train, alpha = 0.5)
+lambda.min.enet.poll <- enet.poll$lambda.min
+
+# Predict 2024 national pv2p share
+poll.predict <- (predict(enet.poll, s = lambda.min.enet.poll, newx = x.test))
+
+#MSE
+mse_all_data <- mean((mean(x.test) - poll.predict)^2)
+
+
+# Predicting with excluded data
+set.seed(02138)
+enet.poll2 <- cv.glmnet(x = x.train2, y = y.train2, alpha = 0.5)
+lambda.min.enet.poll2 <- enet.poll2$lambda.min
+
+# Predict 2024 national pv2p share using elastic-net
+poll.predict2 <- (predict(enet.poll2, s = lambda.min.enet.poll2, newx = x.test))
+
+#MSE
+mse_excluded_data <- mean((mean(x.test) - poll.predict)^2)
+
+
+# Ensemble Prediction
+ensemble_with_all <- (fund.predict * 2/3 + poll.predict * 1/3)
+ensemble_without_outliers <- (fund2.predict * 2/3 + poll.predict2 * 1/3)
+
+```
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+stargazer(fund_model, fund_model_2, type = "text")
+
+```
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+national_predictions <- data.frame(Candidate = c("Kamala Harris", "Kamala Harris", "Donald Trump", "Donald Trump"), model = c("All Data", "Outliers Excluded", "All Data", "Outliers Excluded"), prediction = c(53.4, 48.4, 46.6, 51.6))
+
+national_plot <- ggplot(national_predictions, aes(x = model, y = prediction)) + geom_col(aes(fill = Candidate), width = .3) + scale_fill_manual(values = c("firebrick", "steelblue1")) + xlab("Prediction Model") + ylab("Two-Party Vote Share") + coord_flip() + geom_text(data = national_predictions, aes(label = prediction), color = "white", check_overlap = TRUE, nudge_y = -5)
+national_plot + theme(panel.background = element_blank())
+
+```
+
+
+## State Prediction
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+
+prediction_data <- data.frame(state = c("AL","AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI" , "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD","MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC","SD", "TN","TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"), value = c(0, 0, NA, 0, 1, 1, 1, 1, 0, NA, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, NA, 1, 0, 0, 1, 0, NA, 1, 1, 1, 1, NA, 0, 0, 0, 1, NA, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, NA, 0))
+
+```
+
+```{r echo=FALSE}
+plot_usmap(region = "states", 
+           data = prediction_data,
+           values = "value",
+           color = "white") + scale_fill_gradient(low = "firebrick", high = "steelblue1", na.value = "purple")
+
+```
+
+
+
+The prediction model combines polling data and fundamental economic data. The model uses historical polling in each state to predict based on the 2024 polling averages. The model also uses GDP quarter two growth and inflation (CPI). For the final prediction the model weighs polling data 3/4 and fundamental economic data 1/4 due to polling data being more in tune with 2024 events.
+
+```{r include=FALSE}
+d_state_popvote <- read.csv("state_popvote_1948_2020 copy.csv")
+d_state_polls <- read.csv("state_polls_1968-2024.csv")
+
+```
+
+``` {r message=FALSE, warning=FALSE, include=FALSE }
+
+#Arizona Model
+arizona_data <- d_state_popvote |> 
+  filter(state == "Arizona") |> 
+  select(year, D_pv2p) |> 
+  left_join(d_state_polls |> filter(state == "Arizona" & party == "DEM")) |>
+  left_join(fred |> filter(quarter == 2))
+
+arizona_poll_lm <- lm(data = arizona_data, D_pv2p ~ poll_support)
+arizona_econ_lm <- lm(data = arizona_data, D_pv2p ~ GDP_growth_quarterly + CPI)
+
+arizona_2024_polls <- d_state_polls |>
+  filter(state == "Arizona" & year == 2024)
+
+arizona_2024_econ <- fred |>
+  filter(quarter == 2 & year == 2024)
+
+arizona_limits <- predict(arizona_poll_lm, arizona_2024_polls, interval = "prediction")
+arizona_poll_prediction <- mean(predict(arizona_poll_lm, arizona_2024_polls))
+arizona_econ_prediction <- predict(arizona_econ_lm, arizona_2024_econ, interval = "prediction")
+
+arizona_prediction <- (arizona_poll_prediction * 2/3 + arizona_econ_prediction * 1/3)
+
+# Out of Sample Error (Econ)
+out_samp_errors_az_econ <- sapply(1:1000, function(i) {
+  years_out_samp_az_econ <- sample(arizona_data$year, 9) 
+  mod_az_econ <- lm(D_pv2p ~ CPI + GDP_growth_quarterly,
+            arizona_data[!(arizona_data$year %in% years_out_samp_az_econ),])
+  out_samp_pred_az_econ <- predict(mod_az_econ, arizona_data[arizona_data$year %in% years_out_samp_az_econ,])
+  out_samp_truth_az_econ <- arizona_data$D_pv2p[arizona_data$year %in% years_out_samp_az_econ]
+  mean(out_samp_pred_az_econ - out_samp_truth_az_econ)
+})
+
+az_econ_out <- mean(abs(out_samp_errors_az_econ))
+
+# Out of Sample Error (Poll)
+
+out_samp_errors_az_poll <- sapply(1:1000, function(i) {
+  years_out_samp_az_poll <- sample(arizona_data$year, 9) 
+  mod_az_poll <- lm(D_pv2p ~ poll_support,
+            arizona_data[!(arizona_data$year %in% years_out_samp_az_poll),])
+  out_samp_pred_az_poll <- predict(mod_az_poll, arizona_data[arizona_data$year %in% years_out_samp_az_poll,])
+  out_samp_truth_az_poll <- arizona_data$D_pv2p[arizona_data$year %in% years_out_samp_az_poll]
+  mean(out_samp_pred_az_poll - out_samp_truth_az_poll)
+})
+
+az_poll_out <- mean(abs(out_samp_errors_az_poll), na.rm = TRUE)
+```
+
+
+``` {r message=FALSE, warning=FALSE, include=FALSE}
+#Georgia Model
+georgia_data <- d_state_popvote |> 
+  filter(state == "Georgia") |> 
+  select(year, D_pv2p) |> 
+  left_join(d_state_polls |> filter(state == "Georgia" & party == "DEM")) |>
+  left_join(fred |> filter(quarter == 2))
+
+georgia_poll_lm <- lm(data = georgia_data, D_pv2p ~ poll_support)
+georgia_econ_lm <- lm(data = georgia_data, D_pv2p ~ GDP_growth_quarterly + CPI)
+
+georgia_2024_polls <- d_state_polls |>
+  filter(state == "Georgia" & year == 2024)
+
+georgia_2024_econ <- fred |>
+  filter(quarter == 2 & year == 2024)
+
+georgia_limits <- predict(georgia_poll_lm, georgia_2024_polls, interval = "prediction")
+georgia_poll_prediction <- mean(predict(georgia_poll_lm, georgia_2024_polls))
+georgia_econ_prediction <- predict(georgia_econ_lm, georgia_2024_econ, interval = "prediction")
+
+georgia_prediction <- (georgia_poll_prediction * 2/3 + georgia_econ_prediction * 1/3)
+
+# Out of Sample Error (Econ)
+out_samp_errors_ga_econ <- sapply(1:1000, function(i) {
+  years_out_samp_ga_econ <- sample(georgia_data$year, 9) 
+  mod_ga_econ <- lm(D_pv2p ~ CPI + GDP_growth_quarterly,
+            georgia_data[!(georgia_data$year %in% years_out_samp_ga_econ),])
+  out_samp_pred_ga_econ <- predict(mod_ga_econ, georgia_data[georgia_data$year %in% years_out_samp_ga_econ,])
+  out_samp_truth_ga_econ <- georgia_data$D_pv2p[georgia_data$year %in% years_out_samp_ga_econ]
+  mean(out_samp_pred_ga_econ - out_samp_truth_ga_econ)
+})
+
+ga_econ_out <- mean(abs(out_samp_errors_ga_econ))
+
+# Out of Sample Error (Poll)
+
+out_samp_errors_ga_poll <- sapply(1:1000, function(i) {
+  years_out_samp_ga_poll <- sample(georgia_data$year, 9) 
+  mod_ga_poll <- lm(D_pv2p ~ poll_support,
+            georgia_data[!(georgia_data$year %in% years_out_samp_ga_poll),])
+  out_samp_pred_ga_poll <- predict(mod_ga_poll, georgia_data[georgia_data$year %in% years_out_samp_ga_poll,])
+  out_samp_truth_ga_poll <- georgia_data$D_pv2p[georgia_data$year %in% years_out_samp_ga_poll]
+  mean(out_samp_pred_ga_poll - out_samp_truth_ga_poll)
+})
+
+ga_poll_out <- mean(abs(out_samp_errors_ga_poll), na.rm = TRUE)
+```
+
+
+``` {r message=FALSE, warning=FALSE, include=FALSE }
+#Nevada Model
+nevada_data <- d_state_popvote |> 
+  filter(state == "Nevada") |> 
+  select(year, D_pv2p) |> 
+  left_join(d_state_polls |> filter(state == "Nevada" & party == "DEM")) |>
+  left_join(fred |> filter(quarter == 2))
+
+nevada_poll_lm <- lm(data = nevada_data, D_pv2p ~ poll_support)
+nevada_econ_lm <- lm(data = nevada_data, D_pv2p ~ GDP_growth_quarterly + CPI)
+
+nevada_2024_polls <- d_state_polls |>
+  filter(state == "Nevada" & year == 2024)
+
+nevada_2024_econ <- fred |>
+  filter(quarter == 2 & year == 2024)
+
+nevada_limits <- predict(nevada_poll_lm, nevada_2024_polls, interval = "prediction")
+nevada_poll_prediction <- mean(predict(nevada_poll_lm, nevada_2024_polls))
+nevada_econ_prediction <- predict(nevada_econ_lm, nevada_2024_econ, interval = "prediction")
+
+nevada_prediction <- (nevada_poll_prediction * 2/3 + nevada_econ_prediction * 1/3)
+
+# Out of Sample Error (Econ)
+out_samp_errors_nv_econ <- sapply(1:1000, function(i) {
+  years_out_samp_nv_econ <- sample(nevada_data$year, 9) 
+  mod_nv_econ <- lm(D_pv2p ~ CPI + GDP_growth_quarterly,
+            nevada_data[!(nevada_data$year %in% years_out_samp_nv_econ),])
+  out_samp_pred_nv_econ <- predict(mod_nv_econ, nevada_data[nevada_data$year %in% years_out_samp_nv_econ,])
+  out_samp_truth_nv_econ <- nevada_data$D_pv2p[nevada_data$year %in% years_out_samp_nv_econ]
+  mean(out_samp_pred_nv_econ - out_samp_truth_nv_econ)
+})
+
+nv_econ_out <- mean(abs(out_samp_errors_nv_econ))
+
+# Out of Sample Error (Poll)
+
+out_samp_errors_nv_poll <- sapply(1:1000, function(i) {
+  years_out_samp_nv_poll <- sample(nevada_data$year, 9) 
+  mod_nv_poll <- lm(D_pv2p ~ poll_support,
+            nevada_data[!(nevada_data$year %in% years_out_samp_nv_poll),])
+  out_samp_pred_nv_poll <- predict(mod_nv_poll, nevada_data[nevada_data$year %in% years_out_samp_nv_poll,])
+  out_samp_truth_nv_poll <- nevada_data$D_pv2p[nevada_data$year %in% years_out_samp_nv_poll]
+  mean(out_samp_pred_nv_poll - out_samp_truth_nv_poll)
+})
+
+nv_poll_out <- mean(abs(out_samp_errors_nv_poll), na.rm = TRUE)
+
+```
+
+
+``` {r message=FALSE, warning=FALSE, include=FALSE }
+#North Carolina Model
+north_carolina_data <- d_state_popvote |> 
+  filter(state == "North Carolina") |> 
+  select(year, D_pv2p) |> 
+  left_join(d_state_polls |> filter(state == "North Carolina" & party == "DEM")) |>
+  left_join(fred |> filter(quarter == 2))
+
+north_carolina_poll_lm <- lm(data = north_carolina_data, D_pv2p ~ poll_support)
+north_carolina_econ_lm <- lm(data = north_carolina_data, D_pv2p ~ GDP_growth_quarterly + CPI)
+
+north_carolina_2024_polls <- d_state_polls |>
+  filter(state == "North Carolina" & year == 2024)
+
+north_carolina_2024_econ <- fred |>
+  filter(quarter == 2 & year == 2024)
+
+north_carolina_limits <- predict(north_carolina_poll_lm, north_carolina_2024_polls, interval = "prediction")
+north_carolina_poll_prediction <- mean(predict(north_carolina_poll_lm, north_carolina_2024_polls))
+north_carolina_econ_prediction <- predict(north_carolina_econ_lm, north_carolina_2024_econ, interval = "prediction")
+
+north_carolina_prediction <- (north_carolina_poll_prediction * 2/3 + north_carolina_econ_prediction * 1/3)
+
+# Out of Sample Error (Econ)
+out_samp_errors_nc_econ <- sapply(1:1000, function(i) {
+  years_out_samp_nc_econ <- sample(north_carolina_data$year, 9) 
+  mod_nc_econ <- lm(D_pv2p ~ CPI + GDP_growth_quarterly,
+            north_carolina_data[!(north_carolina_data$year %in% years_out_samp_nc_econ),])
+  out_samp_pred_nc_econ <- predict(mod_nc_econ, north_carolina_data[north_carolina_data$year %in% years_out_samp_nc_econ,])
+  out_samp_truth_nc_econ <- north_carolina_data$D_pv2p[north_carolina_data$year %in% years_out_samp_nc_econ]
+  mean(out_samp_pred_nc_econ - out_samp_truth_nc_econ)
+})
+
+nc_econ_out <- mean(abs(out_samp_errors_nc_econ))
+
+# Out of Sample Error (Poll)
+
+out_samp_errors_nc_poll <- sapply(1:1000, function(i) {
+  years_out_samp_nc_poll <- sample(north_carolina_data$year, 9) 
+  mod_nc_poll <- lm(D_pv2p ~ poll_support,
+            north_carolina_data[!(north_carolina_data$year %in% years_out_samp_nc_poll),])
+  out_samp_pred_nc_poll <- predict(mod_nc_poll, north_carolina_data[north_carolina_data$year %in% years_out_samp_nc_poll,])
+  out_samp_truth_nc_poll <- north_carolina_data$D_pv2p[north_carolina_data$year %in% years_out_samp_nc_poll]
+  mean(out_samp_pred_nc_poll - out_samp_truth_nc_poll)
+})
+
+nc_poll_out <- mean(abs(out_samp_errors_nc_poll), na.rm = TRUE)
+
+
+```
+
+
+``` {r message=FALSE, warning=FALSE, include=FALSE}
+#Michigan Model
+michigan_data <- d_state_popvote |> 
+  filter(state == "Michigan") |> 
+  select(year, D_pv2p) |> 
+  left_join(d_state_polls |> filter(state == "Michigan" & party == "DEM")) |>
+  left_join(fred |> filter(quarter == 2))
+
+michigan_poll_lm <- lm(data = michigan_data, D_pv2p ~ poll_support)
+michigan_econ_lm <- lm(data = michigan_data, D_pv2p ~ GDP_growth_quarterly + CPI)
+
+michigan_2024_polls <- d_state_polls |>
+  filter(state == "Michigan" & year == 2024)
+
+michigan_2024_econ <- fred |>
+  filter(quarter == 2 & year == 2024)
+
+michigan_limits <- predict(michigan_poll_lm, michigan_2024_polls, interval = "prediction")
+michigan_poll_prediction <- mean(predict(michigan_poll_lm, michigan_2024_polls))
+michigan_econ_prediction <- predict(michigan_econ_lm, michigan_2024_econ, interval = "prediction")
+
+michigan_prediction <- (michigan_poll_prediction * 2/3 + michigan_econ_prediction * 1/3)
+
+# Out of Sample Error (Econ)
+out_samp_errors_mich_econ <- sapply(1:1000, function(i) {
+  years_out_samp_mich_econ <- sample(michigan_data$year, 9) 
+  mod_mich_econ <- lm(D_pv2p ~ CPI + GDP_growth_quarterly,
+            michigan_data[!(michigan_data$year %in% years_out_samp_mich_econ),])
+  out_samp_pred_mich_econ <- predict(mod_mich_econ, michigan_data[michigan_data$year %in% years_out_samp_mich_econ,])
+  out_samp_truth_mich_econ <- michigan_data$D_pv2p[michigan_data$year %in% years_out_samp_mich_econ]
+  mean(out_samp_pred_mich_econ - out_samp_truth_mich_econ)
+})
+
+mich_econ_out <- mean(abs(out_samp_errors_mich_econ))
+
+# Out of Sample Error (Poll)
+
+out_samp_errors_mich_poll <- sapply(1:1000, function(i) {
+  years_out_samp_mich_poll <- sample(michigan_data$year, 9) 
+  mod_mich_poll <- lm(D_pv2p ~ poll_support,
+            michigan_data[!(michigan_data$year %in% years_out_samp_mich_poll),])
+  out_samp_pred_mich_poll <- predict(mod_mich_poll, michigan_data[michigan_data$year %in% years_out_samp_mich_poll,])
+  out_samp_truth_mich_poll <- michigan_data$D_pv2p[michigan_data$year %in% years_out_samp_mich_poll]
+  mean(out_samp_pred_mich_poll - out_samp_truth_mich_poll)
+})
+
+mich_poll_out <- mean(abs(out_samp_errors_mich_poll), na.rm = TRUE)
+
+```
+
+
+``` {r message=FALSE, warning=FALSE, include=FALSE}
+#Pennsylvania Model
+
+pennsylvania_data <- d_state_popvote |> 
+  filter(state == "Pennsylvania") |> 
+  select(year, D_pv2p) |> 
+  left_join(d_state_polls |> filter(state == "Pennsylvania" & party == "DEM")) |>
+  left_join(fred |> filter(quarter == 2))
+
+pennsylvania_poll_lm <- lm(data = pennsylvania_data, D_pv2p ~ poll_support)
+pennsylvania_econ_lm <- lm(data = pennsylvania_data, D_pv2p ~ GDP_growth_quarterly + CPI)
+
+pennsylvania_2024_polls <- d_state_polls |>
+  filter(state == "Pennsylvania" & year == 2024)
+
+pennsylvania_2024_econ <- fred |>
+  filter(quarter == 2 & year == 2024)
+
+pennsylvania_limits <- predict(pennsylvania_poll_lm, pennsylvania_2024_polls, interval = "prediction")
+pennsylvania_poll_prediction <- mean(predict(pennsylvania_poll_lm, pennsylvania_2024_polls))
+pennsylvania_econ_prediction <- predict(pennsylvania_econ_lm, pennsylvania_2024_econ, interval = "prediction")
+
+pennsylvania_prediction <- (pennsylvania_poll_prediction * 2/3 + pennsylvania_econ_prediction * 1/3)
+
+# Out of Sample Error (Econ)
+out_samp_errors_penn_econ <- sapply(1:1000, function(i) {
+  years_out_samp_penn_econ <- sample(pennsylvania_data$year, 9) 
+  mod_penn_econ <- lm(D_pv2p ~ CPI + GDP_growth_quarterly,
+            pennsylvania_data[!(pennsylvania_data$year %in% years_out_samp_penn_econ),])
+  out_samp_pred_penn_econ <- predict(mod_penn_econ, pennsylvania_data[pennsylvania_data$year %in% years_out_samp_penn_econ,])
+  out_samp_truth_penn_econ <- pennsylvania_data$D_pv2p[pennsylvania_data$year %in% years_out_samp_penn_econ]
+  mean(out_samp_pred_penn_econ - out_samp_truth_penn_econ)
+})
+
+penn_econ_out <- mean(abs(out_samp_errors_penn_econ))
+
+# Out of Sample Error (Poll)
+
+out_samp_errors_penn_poll <- sapply(1:1000, function(i) {
+  years_out_samp_penn_poll <- sample(pennsylvania_data$year, 9) 
+  mod_penn_poll <- lm(D_pv2p ~ poll_support,
+            pennsylvania_data[!(pennsylvania_data$year %in% years_out_samp_penn_poll),])
+  out_samp_pred_penn_poll <- predict(mod_penn_poll, pennsylvania_data[pennsylvania_data$year %in% years_out_samp_penn_poll,])
+  out_samp_truth_penn_poll <- pennsylvania_data$D_pv2p[pennsylvania_data$year %in% years_out_samp_penn_poll]
+  mean(out_samp_pred_penn_poll - out_samp_truth_penn_poll)
+})
+
+penn_poll_out <- mean(abs(out_samp_errors_penn_poll), na.rm = TRUE)
+
+```
+
+
+``` {r message=FALSE, warning=FALSE, include=FALSE}
+#Wisconsin Model
+
+wisconsin_data <- d_state_popvote |> 
+  filter(state == "Wisconsin") |> 
+  select(year, D_pv2p) |> 
+  left_join(d_state_polls |> filter(state == "Wisconsin" & party == "DEM")) |>
+  left_join(fred |> filter(quarter == 2))
+
+wisconsin_poll_lm <- lm(data = wisconsin_data, D_pv2p ~ poll_support)
+wisconsin_econ_lm <- lm(data = wisconsin_data, D_pv2p ~ GDP_growth_quarterly + CPI)
+
+wisconsin_2024_polls <- d_state_polls |>
+  filter(state == "Wisconsin" & year == 2024)
+
+wisconsin_2024_econ <- fred |>
+  filter(quarter == 2 & year == 2024)
+
+wisconsin_limits <- predict(wisconsin_poll_lm, wisconsin_2024_polls, interval = "prediction")
+wisconsin_poll_prediction <- mean(predict(wisconsin_poll_lm, wisconsin_2024_polls))
+wisconsin_econ_prediction <- predict(wisconsin_econ_lm, wisconsin_2024_econ, interval = "prediction")
+
+wisconsin_prediction <- (wisconsin_poll_prediction * 2/3 + wisconsin_econ_prediction * 1/3)
+
+# Out of Sample Error (Econ)
+out_samp_errors_wis_econ <- sapply(1:1000, function(i) {
+  years_out_samp_wis_econ <- sample(wisconsin_data$year, 9) 
+  mod_wis_econ <- lm(D_pv2p ~ CPI + GDP_growth_quarterly,
+            wisconsin_data[!(wisconsin_data$year %in% years_out_samp_wis_econ),])
+  out_samp_pred_wis_econ <- predict(mod_wis_econ, wisconsin_data[wisconsin_data$year %in% years_out_samp_wis_econ,])
+  out_samp_truth_wis_econ <- wisconsin_data$D_pv2p[wisconsin_data$year %in% years_out_samp_wis_econ]
+  mean(out_samp_pred_wis_econ - out_samp_truth_wis_econ)
+})
+
+wis_econ_out <- mean(abs(out_samp_errors_wis_econ))
+
+# Out of Sample Error (Poll)
+
+out_samp_errors_wis_poll <- sapply(1:1000, function(i) {
+  years_out_samp_wis_poll <- sample(wisconsin_data$year, 9) 
+  mod_wis_poll <- lm(D_pv2p ~ poll_support,
+            wisconsin_data[!(wisconsin_data$year %in% years_out_samp_wis_poll),])
+  out_samp_pred_wis_poll <- predict(mod_wis_poll, wisconsin_data[wisconsin_data$year %in% years_out_samp_wis_poll,])
+  out_samp_truth_wis_poll <- wisconsin_data$D_pv2p[wisconsin_data$year %in% years_out_samp_wis_poll]
+  mean(out_samp_pred_wis_poll - out_samp_truth_wis_poll)
+})
+
+wis_poll_out <- mean(abs(out_samp_errors_wis_poll), na.rm = TRUE)
+
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+stargazer(arizona_econ_lm, georgia_econ_lm, michigan_econ_lm, type = "text")
+stargazer(nevada_econ_lm, north_carolina_econ_lm, pennsylvania_econ_lm, type = "text")
+stargazer(wisconsin_econ_lm, type = "text")
+```
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+stargazer(arizona_poll_lm, georgia_poll_lm, michigan_poll_lm, type = "text")
+stargazer(nevada_poll_lm, north_carolina_poll_lm, pennsylvania_poll_lm, type = "text")
+stargazer(wisconsin_poll_lm, type = "text")
+```
+
+
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+
+# Set up graphing of prediction intervals
+prediction_intervals <- data.frame(prediction = c(48.02574, 45.93155, 50.11993, 46.48577, 44.6847, 
+                                                  48.28684, 54.58927, 52.42928, 56.74925, 54.24487, 
+                                                  52.4219, 56.06784, 51.51054, 44.84048, 58.1806, 
+                                                  52.86476, 51.18173, 54.54779, 52.71732, 50.95308, 
+                                                  54.48155), 
+                                   state = c("Arizona", "Arizona", "Arizona", "Georgia", "Georgia", 
+                                             "Georgia", "Michigan", "Michigan", "Michigan", "Nevada", 
+                                             "Nevada", "Nevada", "North Carolina", "North Carolina", 
+                                             "North Carolina", "Pennsylvania", "Pennsylvania", 
+                                             "Pennsylvania", "Wisconsin", "Wisconsin", "Wisconsin"))
+prediction_intervals$state <- factor(prediction_intervals$state)
+```
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+plot(prediction ~ state,
+     data = prediction_intervals, cex.axis = .65, main = "State Prediction Intervals", ylab = "Harris Vote Share", xlab = "State", col = "steelblue1") 
+abline(h = 50, lty = 2)
+```
+
+
+
+
+The individual state models predict a close election with Kamala Harris winning __Michigan, Wisconsin, Pennsylvania__ and Trump winning __Arizona, Georgia, Nevada, North Carolina__. This would result in Harris winning the Electoral College with exactly __270__ votes.
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+# Map for final prediction
+prediction_data_final <- data.frame(state = c("AL","AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI" , "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD","MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC","SD", "TN","TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"), value = c(0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0))
+
+```
+
+```{r echo=FALSE}
+plot_usmap(region = "states", 
+           data = prediction_data_final,
+           values = "value",
+           color = "white") + scale_fill_gradient(low = "firebrick", high = "steelblue1")
+
+
+```
+
+Listed below are the predicted two-party vote shares from the state models.
+
+
+State | Harris Predicted Two-Party Vote | Trump Predicted Two-Party Vote
+------------- | ------------- | -------------
+Arizona | 48.0% | 52.0%
+Georgia | 46.5% | 53.5%
+Michigan | 54.6% | 45.4%
+Nevada | 54.2% | 45.8%
+North Carolina | 48.6% | 51.4%
+Pennsylvania | 52.9% | 47.1%
+Wisconsin | 52.7% | 47.3%
+```
+
+
+
+
+

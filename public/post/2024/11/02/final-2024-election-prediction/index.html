@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head><script src="/election-blog/livereload.js?mindelay=10&amp;v=2&amp;port=7619&amp;path=election-blog/livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Final 2024 Election Prediction | Chris Wright&#39;s Election Blog</title>
+    <link rel="stylesheet" href="/election-blog/css/style.css" />
+    <link rel="stylesheet" href="/election-blog/css/fonts.css" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/election-blog/">Home</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">Final 2024 Election Prediction</span></h1>
+<h2 class="author">Chris Wright </h2>
+<h2 class="date">2024/11/02</h2>
+</div>
+
+<main>
+<p>With the election days away, it is time to make my final prediction for the 2024 US Presidential Election. In the past weeks, I have alternated between Electoral College predictions and National Popular Vote predictions. For the final prediction blog post, I will predict both of these using the methods and data I have explored in previous posts.</p>
+<h2 id="national-prediction">National Prediction</h2>
+<p>The first prediction I will explore is the National Prediction. This prediction will predict the Two-Party Vote Share for both Kamala Harris and Donald Trump</p>
+<h3 id="model-description-and-formula">Model Description and Formula</h3>
+<p>The final model is an ensemble of two models. The first model is a &ldquo;fundamental&rdquo; model. The first model utilizes data from the</p>
+<pre><code>## 
+## ==========================================================
+##                               Dependent variable:         
+##                      -------------------------------------
+##                                      pv2p                 
+##                             (1)                (2)        
+## ----------------------------------------------------------
+## GDP_growth_quarterly       0.484*            0.713**      
+##                           (0.248)            (0.303)      
+##                                                           
+## sp500move                  0.036              -0.018      
+##                           (0.037)            (0.056)      
+##                                                           
+## CPI                        -0.029             -0.014      
+##                           (0.035)            (0.037)      
+##                                                           
+## homeowner_vacancy          -1.161             0.551       
+##                           (4.902)            (4.965)      
+##                                                           
+## rental_vacancy             -0.371             -0.304      
+##                           (1.162)            (1.133)      
+##                                                           
+## Constant                 57.457***          53.566***     
+##                           (6.407)            (6.963)      
+##                                                           
+## ----------------------------------------------------------
+## Observations                 17                 16        
+## R2                         0.390              0.447       
+## Adjusted R2                0.112              0.170       
+## Residual Std. Error   4.921 (df = 11)    4.794 (df = 10)  
+## F Statistic          1.405 (df = 5; 11) 1.616 (df = 5; 10)
+## ==========================================================
+## Note:                          *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+</code></pre>
+<img src="/election-blog/post/2024/11/02/final-2024-election-prediction/index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+<h2 id="state-prediction">State Prediction</h2>
+<img src="/election-blog/post/2024/11/02/final-2024-election-prediction/index_files/figure-html/unnamed-chunk-6-1.png" width="672" />
+<p>The prediction model combines polling data and fundamental economic data. The model uses historical polling in each state to predict based on the 2024 polling averages. The model also uses GDP quarter two growth and inflation (CPI). For the final prediction the model weighs polling data 3/4 and fundamental economic data 1/4 due to polling data being more in tune with 2024 events.</p>
+<pre><code>## 
+## ==================================================================================================
+##                                                   Dependent variable:                             
+##                      -----------------------------------------------------------------------------
+##                                                         D_pv2p                                    
+##                                 (1)                       (2)                       (3)           
+## --------------------------------------------------------------------------------------------------
+## GDP_growth_quarterly         -0.020**                  -0.199***                 0.167***         
+##                               (0.008)                   (0.007)                   (0.008)         
+##                                                                                                   
+## CPI                          0.033***                  -0.041***                 0.043***         
+##                               (0.002)                   (0.002)                   (0.001)         
+##                                                                                                   
+## Constant                     40.107***                 55.747***                 44.698***        
+##                               (0.351)                   (0.329)                   (0.252)         
+##                                                                                                   
+## --------------------------------------------------------------------------------------------------
+## Observations                   2,198                     1,891                     2,376          
+## R2                             0.217                     0.330                     0.314          
+## Adjusted R2                    0.217                     0.329                     0.314          
+## Residual Std. Error      3.194 (df = 2195)         2.746 (df = 1888)         3.298 (df = 2373)    
+## F Statistic          304.909*** (df = 2; 2195) 464.810*** (df = 2; 1888) 543.841*** (df = 2; 2373)
+## ==================================================================================================
+## Note:                                                                  *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+</code></pre>
+<pre><code>## 
+## ====================================================================================================
+##                                                    Dependent variable:                              
+##                      -------------------------------------------------------------------------------
+##                                                          D_pv2p                                     
+##                                  (1)                        (2)                       (3)           
+## ----------------------------------------------------------------------------------------------------
+## GDP_growth_quarterly          0.205***                   -0.040***                 0.100***         
+##                                (0.007)                    (0.008)                   (0.006)         
+##                                                                                                     
+## CPI                           0.115***                   0.039***                  0.010***         
+##                                (0.002)                    (0.002)                   (0.001)         
+##                                                                                                     
+## Constant                      27.120***                  39.348***                 50.469***        
+##                                (0.336)                    (0.295)                   (0.283)         
+##                                                                                                     
+## ----------------------------------------------------------------------------------------------------
+## Observations                    1,874                      2,307                     2,114          
+## R2                              0.720                      0.326                     0.107          
+## Adjusted R2                     0.719                      0.326                     0.107          
+## Residual Std. Error       2.780 (df = 1871)          3.394 (df = 2304)         2.567 (df = 2111)    
+## F Statistic          2,403.034*** (df = 2; 1871) 557.566*** (df = 2; 2304) 127.019*** (df = 2; 2111)
+## ====================================================================================================
+## Note:                                                                    *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+</code></pre>
+<pre><code>## 
+## ================================================
+##                          Dependent variable:    
+##                      ---------------------------
+##                                D_pv2p           
+## ------------------------------------------------
+## GDP_growth_quarterly          0.111***          
+##                                (0.007)          
+##                                                 
+## CPI                           0.016***          
+##                                (0.001)          
+##                                                 
+## Constant                      49.211***         
+##                                (0.272)          
+##                                                 
+## ------------------------------------------------
+## Observations                    2,211           
+## R2                              0.116           
+## Adjusted R2                     0.115           
+## Residual Std. Error       2.692 (df = 2208)     
+## F Statistic           145.037*** (df = 2; 2208) 
+## ================================================
+## Note:                *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+</code></pre>
+<pre><code>## 
+## ================================================================================================
+##                                                 Dependent variable:                             
+##                     ----------------------------------------------------------------------------
+##                                                        D_pv2p                                   
+##                               (1)                       (2)                       (3)           
+## ------------------------------------------------------------------------------------------------
+## poll_support                0.093***                 0.315***                  0.228***         
+##                             (0.012)                   (0.017)                   (0.013)         
+##                                                                                                 
+## Constant                   42.809***                 34.742***                 42.609***        
+##                             (0.485)                   (0.723)                   (0.579)         
+##                                                                                                 
+## ------------------------------------------------------------------------------------------------
+## Observations                 2,189                     1,883                     2,369          
+## R2                           0.026                     0.147                     0.113          
+## Adjusted R2                  0.025                     0.147                     0.113          
+## Residual Std. Error    3.533 (df = 2187)         2.914 (df = 1881)         3.730 (df = 2367)    
+## F Statistic         57.253*** (df = 1; 2187) 325.050*** (df = 1; 1881) 302.945*** (df = 1; 2367)
+## ================================================================================================
+## Note:                                                                *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+</code></pre>
+<pre><code>## 
+## ==================================================================================================
+##                                                  Dependent variable:                              
+##                     ------------------------------------------------------------------------------
+##                                                         D_pv2p                                    
+##                                 (1)                        (2)                      (3)           
+## --------------------------------------------------------------------------------------------------
+## poll_support                 0.730***                   0.340***                 -0.059***        
+##                               (0.019)                    (0.014)                  (0.012)         
+##                                                                                                   
+## Constant                     18.334***                  32.213***                54.992***        
+##                               (0.820)                    (0.609)                  (0.518)         
+##                                                                                                   
+## --------------------------------------------------------------------------------------------------
+## Observations                   1,865                      2,301                    2,107          
+## R2                             0.445                      0.197                    0.012          
+## Adjusted R2                    0.444                      0.197                    0.012          
+## Residual Std. Error      3.893 (df = 1863)          3.685 (df = 2299)        2.679 (df = 2105)    
+## F Statistic         1,492.239*** (df = 1; 1863) 564.187*** (df = 1; 2299) 26.135*** (df = 1; 2105)
+## ==================================================================================================
+## Note:                                                                  *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+</code></pre>
+<pre><code>## 
+## ===============================================
+##                         Dependent variable:    
+##                     ---------------------------
+##                               D_pv2p           
+## -----------------------------------------------
+## poll_support                 0.169***          
+##                               (0.009)          
+##                                                
+## Constant                     44.516***         
+##                               (0.407)          
+##                                                
+## -----------------------------------------------
+## Observations                   2,203           
+## R2                             0.141           
+## Adjusted R2                    0.140           
+## Residual Std. Error      2.617 (df = 2201)     
+## F Statistic          360.473*** (df = 1; 2201) 
+## ===============================================
+## Note:               *p&lt;0.1; **p&lt;0.05; ***p&lt;0.01
+</code></pre>
+<img src="/election-blog/post/2024/11/02/final-2024-election-prediction/index_files/figure-html/unnamed-chunk-18-1.png" width="672" />
+<p>The individual state models predict a close election with Kamala Harris winning <strong>Michigan, Wisconsin, Pennsylvania</strong> and Trump winning <strong>Arizona, Georgia, Nevada, North Carolina</strong>. This would result in Harris winning the Electoral College with exactly <strong>270</strong> votes.</p>
+<img src="/election-blog/post/2024/11/02/final-2024-election-prediction/index_files/figure-html/unnamed-chunk-20-1.png" width="672" />
+<p>Listed below are the predicted two-party vote shares from the state models.</p>
+<table>
+  <thead>
+      <tr>
+          <th style="text-align: left">State</th>
+          <th style="text-align: left">Harris Predicted Two-Party Vote</th>
+          <th style="text-align: left">Trump Predicted Two-Party Vote</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">Arizona</td>
+          <td style="text-align: left">48.0%</td>
+          <td style="text-align: left">52.0%</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Georgia</td>
+          <td style="text-align: left">46.5%</td>
+          <td style="text-align: left">53.5%</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Michigan</td>
+          <td style="text-align: left">54.6%</td>
+          <td style="text-align: left">45.4%</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Nevada</td>
+          <td style="text-align: left">54.2%</td>
+          <td style="text-align: left">45.8%</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">North Carolina</td>
+          <td style="text-align: left">48.6%</td>
+          <td style="text-align: left">51.4%</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Pennsylvania</td>
+          <td style="text-align: left">52.9%</td>
+          <td style="text-align: left">47.1%</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Wisconsin</td>
+          <td style="text-align: left">52.7%</td>
+          <td style="text-align: left">47.3%</td>
+      </tr>
+  </tbody>
+</table>
+<pre><code>
+
+
+
+
+</code></pre>
+
+</main>
+
+  <footer>
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<script src="//cdn.jsdelivr.net/combine/npm/katex/dist/katex.min.js,npm/katex/dist/contrib/auto-render.min.js,npm/@xiee/utils/js/render-katex.js" defer></script>
+
+<script src="//cdn.jsdelivr.net/npm/@xiee/utils/js/center-img.min.js" defer></script>
+
+  
+  <hr/>
+  © Chris Wright 2024 | <a href="https://github.com/ChrisWright25/election-blog">Github</a>
+  
+  </footer>
+  </body>
+</html>
+
