@@ -1,0 +1,215 @@
+---
+title: Post Election Reflection
+author: 'Chris Wright '
+date: '2024-11-17'
+slug: post-election-reflection
+categories: []
+tags: []
+---
+```{r message=FALSE, warning=FALSE, include=FALSE}
+# Load Packages
+library(car)
+library(caret)
+library(CVXR)
+library(foreign)
+library(glmnet)
+library(haven)
+library(janitor)
+library(kableExtra)
+library(maps)
+library(mlr3)
+library(randomForest)
+library(ranger)
+library(RColorBrewer)
+library(sf)
+library(tidyverse)
+library(viridis)
+library(usmap)
+library(ggpubr)
+library(r02pro)
+library(stargazer)
+```
+
+
+
+
+### Prediction vs. Results
+
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+# Map for final prediction
+prediction_data_final <- data.frame(state = c("AL","AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI" , "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD","MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC","SD", "TN","TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"), value = c(0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0))
+
+actual_data_final <- data.frame(state = c("AL","AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI" , "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD","MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC","SD", "TN","TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"), value = c(0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0))
+
+```
+
+```{r echo=FALSE}
+predict_plot <- plot_usmap(region = "states", 
+           data = prediction_data_final,
+           values = "value",
+           color = "white") + scale_fill_gradient(low = "firebrick", high = "steelblue1")
+
+actual_plot <- plot_usmap(region = "states", 
+           data = actual_data_final,
+           values = "value",
+           color = "white") + scale_fill_gradient(low = "firebrick", high = "steelblue1")
+ggarrange(predict_plot, actual_plot, nrow = 1)
+```
+
+
+
+```{r echo=FALSE}
+
+accuracy_data <- data.frame(x = c("National", "Arizona", "Georgia", "Michigan", "Nevada", "North Carolina", "Pennsylvania", "Wisconsin"), actual = c(49.11, 47.20, 48.90, 49.28, 48.42, 48.31, 49.11, 49.53), predict = c(53.4, 48.02574, 46.48577, 54.58927, 54.24487, 48.5917, 52.86476, 52.71732))
+
+
+ggplot(accuracy_data) +
+  geom_segment( aes(x=x, xend=x, y=actual, yend=predict), color="grey") +
+  geom_point( aes(x=x, y=actual), color=rgb(0.2,0.7,0.1,0.5), size=3 ) +
+  geom_point( aes(x=x, y=predict), color=rgb(0.7,0.2,0.1,0.5), size=3 ) +
+  coord_flip() +
+  xlab("") +
+  ylab("Harris Vote Percentage") +
+  labs(title = "Actual vs Predicted Two Party Vote Share")
+```
+
+
+
+### Accuracy
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+## National
+# MSE of Harris Two Party Vote
+MSE_national_harris <- mean((49.11 - 53.35098)^2)
+
+# RMSE of Harris Two Party Vote
+RMSE_national_harris <- sqrt(mean((49.11 - 53.35098)^2))
+
+# Bias of Harris Two Party Vote
+BIAS_national_harris <- mean((49.11 - 53.35098))
+
+## Arizona
+
+# MSE of Harris Two Party Vote
+MSE_arizona_harris <- mean((47.20 - 48.02574)^2)
+
+# RMSE of Harris Two Party Vote
+RMSE_arizona_harris <- sqrt(mean((47.20 - 48.02574)^2))
+
+# Bias of Harris Two Party Vote
+BIAS_arizona_harris <- mean((47.20 - 48.02574))
+
+## Georgia
+
+# MSE of Harris Two Party Vote
+MSE_georgia_harris <- mean((48.90 - 46.48577)^2)
+
+# RMSE of Harris Two Party Vote
+RMSE_georgia_harris <- sqrt(mean((48.90 - 46.48577)^2))
+
+# Bias of Harris Two Party Vote
+BIAS_georgia_harris <- mean((48.90 - 46.48577))
+
+## Michigan
+
+# MSE of Harris Two Party Vote
+MSE_michigan_harris <- mean((49.28 - 54.58927)^2)
+
+# RMSE of Harris Two Party Vote
+RMSE_michigan_harris <- sqrt(mean((49.28 - 54.58927)^2))
+
+# Bias of Harris Two Party Vote
+BIAS_michigan_harris <- mean((49.28 - 54.58927))
+
+## Nevada
+
+# MSE of Harris Two Party Vote
+MSE_nevada_harris <- mean((48.42 - 54.24487)^2)
+
+# RMSE of Harris Two Party Vote
+RMSE_nevada_harris <- sqrt(mean((48.42 - 54.24487)^2))
+
+# Bias of Harris Two Party Vote
+BIAS_nevada_harris <- mean((48.42 - 54.24487))
+
+## North Carolina
+
+# MSE of Harris Two Party Vote
+MSE_north_carolina_harris <- mean((48.31 - 48.5917)^2)
+
+# RMSE of Harris Two Party Vote
+RMSE_north_carolina_harris <- sqrt(mean((48.31 - 48.5917)^2))
+
+# Bias of Harris Two Party Vote
+BIAS_north_carolina_harris <- mean((48.31 - 48.5917))
+
+## Pennsylvania
+
+# MSE of Harris Two Party Vote
+MSE_pennsylvania_harris <- mean((49.11 - 52.86476)^2)
+
+# RMSE of Harris Two Party Vote
+RMSE_pennsylvania_harris <- sqrt(mean((49.11 - 52.86476)^2))
+
+# Bias of Harris Two Party Vote
+BIAS_pennsylvania_harris <- mean((49.11 - 52.86476))
+
+## Wisconsin
+
+# MSE of Harris Two Party Vote
+MSE_wisconsin_harris <- mean((49.53 - 52.71732)^2)
+
+# RMSE of Harris Two Party Vote
+RMSE_wisconsin_harris <- sqrt(mean((49.53 - 52.71732)^2))
+
+# Bias of Harris Two Party Vote
+BIAS_wisconsin_harris <- mean((49.53 - 52.71732))
+```
+
+Region | Mean Squared Error (MSE) | Bias
+------------- | ------------- | -------------
+National | 17.96 | -4.24
+Arizona | 0.68 | -0.83
+Georgia | 5.83 | 2.41
+Michigan | 28.19 | -5.31
+Nevada | 33.93 | -5.82
+North Carolina | 0.08 | -0.28
+Pennsylvania | 14.09 | -3.75
+Wisconsin | 10.16 | -3.19
+
+
+### Why Was the Model Wrong
+- weighting of model (fundamentals)
+
+```{r echo=FALSE}
+
+fundamental_data <- data.frame(x = c("National", "Arizona", "Georgia", "Michigan", "Nevada", "North Carolina", "Pennsylvania", "Wisconsin"), actual = c(49.11, 47.20, 48.90, 49.28, 48.42, 48.31, 49.11, 49.53), predict = c(54.28, 50.42, 42.24, 58.76, 63.65396, 51.51054, 53.82884, 54.39864))
+
+
+ggplot(fundamental_data) +
+  geom_segment( aes(x=x, xend=x, y=actual, yend=predict), color="grey") +
+  geom_point( aes(x=x, y=actual), color=rgb(0.2,0.7,0.1,0.5), size=3 ) +
+  geom_point( aes(x=x, y=predict), color=rgb(0.7,0.2,0.1,0.5), size=3 ) +
+  coord_flip() +
+  xlab("") +
+  ylab("Harris Vote Percentage") + labs(title = "Fundamentals Only Model (GDP and CPI)")
+```
+
+
+- model was the same for each state
+- outliers of data
+- polls are more predictive in some states
+
+
+### What I Would Change Next Time
+
+
+
+
+
+
+
+

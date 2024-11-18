@@ -327,7 +327,7 @@ Below are the prediction intervals of the state models. North Carolina and Arizo
 
 ## Final Electoral College Prediction
 
-The individual state models predict a close election with Kamala Harris winning __Michigan, Wisconsin, Pennsylvania__ and Trump winning __Arizona, Georgia, Nevada, North Carolina__. This would result in Harris winning the Electoral College with exactly __270__ votes.
+The individual state models predict a close election with Kamala Harris winning __Michigan, Wisconsin, Pennsylvania__ and Trump winning __Arizona, Georgia, North Carolina__. This would result in Harris winning the Electoral College with exactly __270__ votes.
 
 
 

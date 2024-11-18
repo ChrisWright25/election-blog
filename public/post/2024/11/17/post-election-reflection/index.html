@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head><script src="/election-blog/livereload.js?mindelay=10&amp;v=2&amp;port=7619&amp;path=election-blog/livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Post Election Reflection | Chris Wright&#39;s Election Blog</title>
+    <link rel="stylesheet" href="/election-blog/css/style.css" />
+    <link rel="stylesheet" href="/election-blog/css/fonts.css" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/election-blog/">Home</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">Post Election Reflection</span></h1>
+<h2 class="author">Chris Wright </h2>
+<h2 class="date">2024/11/17</h2>
+</div>
+
+<main>
+<h3 id="prediction-vs-results">Prediction vs. Results</h3>
+<img src="/election-blog/post/2024/11/17/post-election-reflection/index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+<img src="/election-blog/post/2024/11/17/post-election-reflection/index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+<h3 id="accuracy">Accuracy</h3>
+<table>
+  <thead>
+      <tr>
+          <th style="text-align: left">Region</th>
+          <th style="text-align: left">Mean Squared Error (MSE)</th>
+          <th style="text-align: left">Bias</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">National</td>
+          <td style="text-align: left">17.96</td>
+          <td style="text-align: left">-4.24</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Arizona</td>
+          <td style="text-align: left">0.68</td>
+          <td style="text-align: left">-0.83</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Georgia</td>
+          <td style="text-align: left">5.83</td>
+          <td style="text-align: left">2.41</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Michigan</td>
+          <td style="text-align: left">28.19</td>
+          <td style="text-align: left">-5.31</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Nevada</td>
+          <td style="text-align: left">33.93</td>
+          <td style="text-align: left">-5.82</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">North Carolina</td>
+          <td style="text-align: left">0.08</td>
+          <td style="text-align: left">-0.28</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Pennsylvania</td>
+          <td style="text-align: left">14.09</td>
+          <td style="text-align: left">-3.75</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Wisconsin</td>
+          <td style="text-align: left">10.16</td>
+          <td style="text-align: left">-3.19</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="why-was-the-model-wrong">Why Was the Model Wrong</h3>
+<ul>
+<li>weighting of model (fundamentals)</li>
+</ul>
+<img src="/election-blog/post/2024/11/17/post-election-reflection/index_files/figure-html/unnamed-chunk-6-1.png" width="672" />
+<ul>
+<li>model was the same for each state</li>
+<li>outliers of data</li>
+<li>polls are more predictive in some states</li>
+</ul>
+<h3 id="what-i-would-change-next-time">What I Would Change Next Time</h3>
+
+</main>
+
+  <footer>
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<script src="//cdn.jsdelivr.net/combine/npm/katex/dist/katex.min.js,npm/katex/dist/contrib/auto-render.min.js,npm/@xiee/utils/js/render-katex.js" defer></script>
+
+<script src="//cdn.jsdelivr.net/npm/@xiee/utils/js/center-img.min.js" defer></script>
+
+  
+  <hr/>
+  © Chris Wright 2024 | <a href="https://github.com/ChrisWright25/election-blog">Github</a>
+  
+  </footer>
+  </body>
+</html>
+
