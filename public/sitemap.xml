@@ -2,35 +2,47 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:7619/election-blog/</loc>
+    <loc>http://localhost:4321/election-blog/post/2024/12/06/campaign-narrative-tennessee/</loc>
+    <lastmod>2024-12-06T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:4321/election-blog/</loc>
+    <lastmod>2024-12-06T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:4321/election-blog/post/</loc>
+    <lastmod>2024-12-06T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:4321/election-blog/post/2024/11/17/post-election-reflection/</loc>
+    <lastmod>2024-11-17T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:4321/election-blog/post/2024/11/02/final-2024-election-prediction/</loc>
+    <lastmod>2024-11-02T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:4321/election-blog/post/2024/11/02/week-8-unexpected-shocks/</loc>
+    <lastmod>2024-11-02T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>http://localhost:4321/election-blog/post/2024/10/19/week-6-the-ground-game/</loc>
     <lastmod>2024-10-19T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:7619/election-blog/post/</loc>
-    <lastmod>2024-10-19T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:7619/election-blog/post/2024/10/19/week-6-the-ground-game/</loc>
-    <lastmod>2024-10-19T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:7619/election-blog/post/2024/10/14/week-6-campaign-ads/</loc>
+    <loc>http://localhost:4321/election-blog/post/2024/10/14/week-6-campaign-ads/</loc>
     <lastmod>2024-10-14T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:7619/election-blog/post/2024/10/05/week-5-demographics/</loc>
+    <loc>http://localhost:4321/election-blog/post/2024/10/05/week-5-demographics/</loc>
     <lastmod>2024-10-05T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:7619/election-blog/post/2024/09/30/week-4-incumbency/</loc>
+    <loc>http://localhost:4321/election-blog/post/2024/09/30/week-4-incumbency/</loc>
     <lastmod>2024-09-30T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:7619/election-blog/post/2024/09/20/polling/</loc>
+    <loc>http://localhost:4321/election-blog/post/2024/09/20/polling/</loc>
     <lastmod>2024-09-20T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:7619/election-blog/post/2024/09/14/fundamentals-i-economy/</loc>
+    <loc>http://localhost:4321/election-blog/post/2024/09/14/fundamentals-i-economy/</loc>
     <lastmod>2024-09-14T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:7619/election-blog/post/2024/09/09/week-1-electoral-competitiveness/</loc>
+    <loc>http://localhost:4321/election-blog/post/2024/09/09/week-1-electoral-competitiveness/</loc>
     <lastmod>2024-09-09T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:7619/election-blog/categories/</loc>
+    <loc>http://localhost:4321/election-blog/categories/</loc>
   </url><url>
-    <loc>http://localhost:7619/election-blog/tags/</loc>
+    <loc>http://localhost:4321/election-blog/tags/</loc>
   </url>
 </urlset>

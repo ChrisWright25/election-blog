@@ -9,55 +9,17 @@ tags: []
 
 ### Overview
 
-```{r message=FALSE, warning=FALSE, include=FALSE}
-# Load in random packages so it doesn't break
-library(car)
-library(caret)
-library(CVXR)
-library(foreign)
-library(glmnet)
-library(haven)
-library(janitor)
-library(kableExtra)
-library(maps)
-library(mlr3)
-library(randomForest)
-library(ranger)
-library(RColorBrewer)
-library(sf)
-library(tidyverse)
-library(viridis)
-library(usmap)
-library(ggpubr)
-library(r02pro)
-library(stargazer)
-library(blogdown)
-```
 
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-# Load packages
-library(usmap)
-library(ggplot2)
 
-
-plot_usmap(regions = "counties",
-           include = "TN") + labs(title = "Map of Tennessee by County")
-
-```
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" />
 To conclude my exploration of the 2024 US Presidential Election cycle, I will hone in on one state: Tennessee. The map above shows Tennessee and its 99 counties. The state is usually thought of through its three grand divisions (reflected in the three stars on the state flag). 
 
 The three divisions are West, Middle and East Tennessee. West Tennessee is the most racially diverse of the grand divisions. West Tennessee includes Memphis, the largest city, in the bottom left of the state which is a democratic stronghold. Middle Tennessee includes several wealthy counties and another democratic stronghold in the middle of the state in Nashville. East Tennessee is home to a large rural population and includes the Appalachian Mountains. East Tennessee is also home to the cities of Knoxville and Chattanooga.
 
 According to the recent [census](https://data.census.gov/profile/Tennessee?g=040XX00US47), Tennessee has a population of a little over 7 million. Racial minorities make up about 30% of the state's population with the largest minority group being African-Americans at 16%. Tennessee ranks toward the bottom of the country when it comes to [poverty](https://wisevoter.com/state-rankings/poverty-rate-by-state/) and [educational attainment](https://www.thecentersquare.com/tennessee/tennessee-ranks-among-the-least-educated-states-in-the-country/article_74e83f2f-23cc-5d98-82bb-060897d62c49.html) measurements
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-plot_usmap(regions = "counties",
-           include = "TN",
-           data = countypop,
-           values = "pop_2022") + labs(title = "Map of Tennessee by County Population (2022 Census Estimates)") +
-           theme(legend.position = "right")
-```
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
 
 The map above shows the population of Tennessee's counties using Census 2022 estimates. The map highlights some of the cities mentioned earlier such as Memphis on the left, Nashville in the center, and Knoxville and Chattanooga in the East. 
 
@@ -70,9 +32,7 @@ Tennessee's electoral history at the Presidential level is not complicated. The 
 
 The polling for Tennessee this cycle was extremely accurate to the actual outcome. The [polls from 538's aggregate](https://projects.fivethirtyeight.com/polls/tennessee/) predicted that Donald Trump would secure __62%__ of the vote while Kamala Harris would win __38%__. Similarly [The Hill and DecisionDesk HQ's](https://elections2024.thehill.com/tennessee/harris-trump-tennessee/) aggregate had Trump with __61.9% and Harris with 38.1%__. The map below shows the actual outcome fo the 2024 election by county in Tennessee. The final vote total had Donald Trump with __64%__ and Kamala Harris with __34%__. 
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-knitr::include_graphics("tn_election_outcome.png")
-```
+<img src="tn_election_outcome.png" width="428" />
 
 
 Why were the state predictions so accurate?
@@ -86,9 +46,7 @@ Another reason for the high accuracy is the large early voting percentage in the
 
 Although the polls were very close, they did slightly underestimate Trump and overestimate Harris. One reason for this could be the way Robert F. Kennedy Jr. was considered in the polling methodology. [As seen below](https://www.cbsnews.com/news/rfk-jr-map-on-the-ballot-states/) RFK Jr. dropped out of the 2024 Presidential race, but remained on the ballot in some states.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-knitr::include_graphics("rfk_map.png")
-```
+<img src="rfk_map.png" width="814" />
 
 Notably, RFK Jr was on the ballot in Tennessee; however, he was not on the ballot in the majority of the pivotal seven swing states. It seems that the Tennessee polls did not account for RFK Jr. as the polls add up to 100%.
 
@@ -97,9 +55,12 @@ Notably, RFK Jr was on the ballot in Tennessee; however, he was not on the ballo
 The analysis of what each campaign did in Tennessee during the 2024 election is limited. The analysis is limited due to the state's status as a safe state. Since the state is safe, neither campaign exerted much effort into the campaign in Tennessee. The map below shows the campaign stops made by both candidates from July 21, 2024 to November 4, 2024. As expected the majority of stops were in the swing states of Arizona, Georgia, Michigan, Pennsylvania, Nevada, North Carolina, and Wisconsin. According to the map below which uses data from [Hearst TV](https://www.wvtm13.com/article/candidate-tracker-nov-4/62796596), Tennessee only had one visit from a candidate.
 
  
-```{r}
+
+``` r
 knitr::include_graphics("campaign_stops_2024.png")
 ```
+
+<img src="campaign_stops_2024.png" width="657" />
   
 Although the physical presence of both campaigns may have been muted, both campaigns had strong ties to Tennessee that could have influenced the votes of Tennesseans.
 
@@ -114,52 +75,7 @@ In her work [The Message Matters](https://press.princeton.edu/books/paperback/97
 Using Vavreck's framework, Trump should have been emphasizing the economy in his campaign speeches. Below, I have created a word cloud using Trump's Bitcoin speech. After removing some filler words and common phrases like Bitcoin, the end result is below. In my opinion, the word cloud doesn't directly align with emphasizing the economy, but there are some words about the economy like inflation and tax.
 
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-# Load libraries.
-library(httr)
-library(jsonlite)
-library(quanteda)
-library(quanteda.textplots)
-library(quanteda.textstats)
-library(readtext)
-library(stm)
-library(text2vec)
-library(tidyverse)
-library(tm)
-library(wordcloud)
-
-
-# Read in Trump speech
-trump_bitcoin <- readtext("trump_bitcoin_speech.txt")
-
-# Create corpus from text 
-trump_bitcoin_tokens <- tokens(trump_bitcoin$text)
-names(trump_bitcoin_tokens) <- trump_bitcoin$doc_id
-
-# Further processing 
-trump_bitcoin_tokens_processed <- tokens(trump_bitcoin$text, 
-                                      remove_symbols = TRUE,
-                                      remove_numbers = TRUE, 
-                                      remove_punct = TRUE, 
-                                      remove_separators = TRUE) |> 
-  tokens_tolower() |> 
-  tokens_remove(pattern = c("joe", "biden", "donald", "trump", "president", "kamala", "harris", "bitcoin", "going", "it's", "will", "we're", "don't")) |> 
-  tokens_remove(pattern = stopwords("en")) |> 
-  tokens_select(min_nchar = 3)
-names(trump_bitcoin_tokens_processed) <- trump_bitcoin$doc_id
-
-# Get topics for individual speeches.
-# Make document-feature matrices for each candidate. 
-trump_bitcoin_dfm <- dfm(trump_bitcoin_tokens_processed)
-
-# Summarize word frequncies. 
-freq_trump_bitcoin_dfm <- textstat_frequency(trump_bitcoin_dfm)
-
-textplot_wordcloud(trump_bitcoin_dfm)
-
-
-
-```
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" />
 
 Both campaign's weak ground game was combined with a weak air game. The amount of ads ran by each party were minimal. [According to the Wesleyan Media Project](https://mediaproject.wesleyan.edu/issues-sept24/), Tennessee had the 8th fewest amount of ads ran. Additionally, the ads that were ran in the state concentrated on two issues, immigration and inflation. This deviates from the swing states which received a larger breadth of issue ads. Unfortunately, the Wesleyan Media Project does not break down ads by party in each state, but since the focus was immigration and inflation the ads were probably ran by the GOP as they had more popular support on those issues.
 
