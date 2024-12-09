@@ -13,6 +13,7 @@ tags: []
 
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" />
+
 To conclude my exploration of the 2024 US Presidential Election cycle, I will hone in on one state: Tennessee. The map above shows Tennessee and its 99 counties. The state is usually thought of through its three grand divisions (reflected in the three stars on the state flag). 
 
 The three divisions are West, Middle and East Tennessee. West Tennessee is the most racially diverse of the grand divisions. West Tennessee includes Memphis, the largest city, in the bottom left of the state which is a democratic stronghold. Middle Tennessee includes several wealthy counties and another democratic stronghold in the middle of the state in Nashville. East Tennessee is home to a large rural population and includes the Appalachian Mountains. East Tennessee is also home to the cities of Knoxville and Chattanooga.
@@ -55,11 +56,6 @@ Notably, RFK Jr was on the ballot in Tennessee; however, he was not on the ballo
 The analysis of what each campaign did in Tennessee during the 2024 election is limited. The analysis is limited due to the state's status as a safe state. Since the state is safe, neither campaign exerted much effort into the campaign in Tennessee. The map below shows the campaign stops made by both candidates from July 21, 2024 to November 4, 2024. As expected the majority of stops were in the swing states of Arizona, Georgia, Michigan, Pennsylvania, Nevada, North Carolina, and Wisconsin. According to the map below which uses data from [Hearst TV](https://www.wvtm13.com/article/candidate-tracker-nov-4/62796596), Tennessee only had one visit from a candidate.
 
  
-
-``` r
-knitr::include_graphics("campaign_stops_2024.png")
-```
-
 <img src="campaign_stops_2024.png" width="657" />
   
 Although the physical presence of both campaigns may have been muted, both campaigns had strong ties to Tennessee that could have influenced the votes of Tennesseans.
